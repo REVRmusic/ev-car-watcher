@@ -1,21 +1,29 @@
-name: Surveillance Marché Véhicules Électriques
+name: Surveillance Marché Véhicules Électriques & Déploiement Pages
 
 on:
   schedule:
-    # Exécution automatique tous les 3 jours à 07:00 UTC (08:00 en hiver / 09:00 en été à Paris)
+    # Exécution automatique tous les 3 jours à 07:00 UTC (08:00 ou 09:00 Paris)
     - cron: '0 7 */3 * *'
   workflow_dispatch: # Bouton d'exécution manuelle en 1 clic depuis l'interface GitHub
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
-  group: "ev-car-watcher"
+  group: "pages"
   cancel-in-progress: false
 
 jobs:
-  run-watcher:
+  run-watcher-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: 📥 Récupération du code
@@ -61,7 +69,7 @@ jobs:
           summary.append(f'- **Opportunités à négocier :** {d.get(\"negotiable_count\")}')
           summary.append('\n### 🎯 Top 8 Meilleures Opportunités')
           summary.append('| Modèle | Année | Kilométrage | Prix | Mensualité (Apport 7k€) | Statut | Ville |')
-          summary.append('| :--- | :---: | :---: | :---: | :---: | :---: | :--- |')
+          summary.append('| :--- | :---: | :---: | :---: | :---: | :--- |')
           
           for c in d['listings'][:8]:
               flag = '🎯 ' if c.get('is_sweet_spot') else ''
@@ -69,7 +77,7 @@ jobs:
               price_val = f\"{c['price_raw']:,} €\".replace(',', ' ')
               summary.append(f\"| {flag}**{c['model_name']}** | {c.get('year','-')} | {km_val} | {price_val} | **{c['mens_7k']} €/m** | {c['budget_badge']} | {c.get('city','-')} |\")
           
-          summary.append('\n👉 Le rapport HTML complet est disponible dans le fichier index.html (ou via GitHub Pages).')
+          summary.append('\n👉 Le rapport HTML complet est consultable en ligne sur GitHub Pages.')
           
           summary_path = os.environ.get('GITHUB_STEP_SUMMARY')
           if summary_path:
@@ -83,3 +91,15 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add history.json market_trends.json results.json rapport_marche_ve.html index.html
           git diff --quiet && git diff --staged --quiet || (git commit -m "Auto: actualisation veille du marché EV et décote [skip ci]" && git push)
+
+      - name: 🌐 Configuration de GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: 📦 Préparation de l'artefact GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: 🚀 Déploiement automatique sur GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
