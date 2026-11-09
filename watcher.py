@@ -56,8 +56,8 @@ def calculate_monthly_payment(principal, annual_rate, duration_months):
     m = principal * (r / (1.0 - (1.0 + r) ** (-duration_months)))
     return round(m, 2)
 
-def parse_power(details):
-    """Extrait la puissance en kW et en Ch."""
+def parse_power(details, full_text=""):
+    """Extrait la puissance en kW et en Ch depuis les détails ou le texte complet."""
     for item in details:
         if item.get("ariaLabel") == "Puissance kW (CH)" or "kW" in str(item.get("data", "")):
             raw = str(item.get("data", ""))
@@ -65,7 +65,25 @@ def parse_power(details):
             ch_match = re.search(r"(\d+)\s*Ch|\b(\d+)\s*CV", raw, re.IGNORECASE)
             kw = int(kw_match.group(1)) if kw_match else None
             ch = int(ch_match.group(1) or ch_match.group(2)) if ch_match else None
+            if kw or ch:
+                if kw and not ch:
+                    ch = round(kw * 1.35962)
+                elif ch and not kw:
+                    kw = round(ch / 1.35962)
+                return kw, ch
+
+    if full_text:
+        kw_match = re.search(r"\b(\d{2,3})\s*kw\b", full_text, re.IGNORECASE)
+        ch_match = re.search(r"\b(\d{2,3})\s*(?:ch|cv)\b", full_text, re.IGNORECASE)
+        kw = int(kw_match.group(1)) if kw_match else None
+        ch = int(ch_match.group(1)) if ch_match else None
+        if kw and not ch:
+            ch = round(kw * 1.35962)
+        elif ch and not kw:
+            kw = round(ch / 1.35962)
+        if kw or ch:
             return kw, ch
+
     return None, None
 
 def parse_km(details):
@@ -147,8 +165,22 @@ def evaluate_and_filter(raw_listings, model_conf, financial_conf, criteria_conf,
         
         title = item.get("title") or ""
         subtitle = item.get("subtitle") or ""
-        full_text = f"{title} {subtitle}".lower()
         source = item.get("source", "AutoScout24")
+
+        # Construction exhaustive du texte complet pour filtrage ultra-précis
+        v_obj = item.get("vehicle", {}) if isinstance(item.get("vehicle"), dict) else {}
+        url_text = item.get("url", "").replace("-", " ").replace("/", " ")
+        version_input = v_obj.get("modelVersionInput") or subtitle or ""
+        motor_type = v_obj.get("motorTypeName", "")
+        v_sub = v_obj.get("subtitle", "")
+        v_variant = v_obj.get("variant", "")
+        v_details_text = " ".join([str(d.get("data", "")) for d in details if isinstance(d, dict)])
+        
+        full_text = f"{title} {subtitle} {version_input} {motor_type} {v_sub} {v_variant} {url_text} {v_details_text}".lower()
+
+        kw, ch = parse_power(details, full_text)
+        km = parse_km(details)
+        year = parse_year(details)
         
         # 1. Règle stricte : élimination si kilométrage > 100 000 km
         if km and km > max_km:
@@ -159,17 +191,23 @@ def evaluate_and_filter(raw_listings, model_conf, financial_conf, criteria_conf,
         if min_year and year and year < min_year:
             continue
 
-        # 3. Vérification de la puissance minimale (kW)
-        min_power_kw = model_conf.get("min_power_kw")
-        if min_power_kw and kw and kw < min_power_kw:
-            continue
-
-        # 4. Mots-clés éliminatoires stricts (ex: thermiques, hybrides, petites batteries)
+        # 3. Mots-clés éliminatoires stricts (ex: thermiques, hybrides, petites batteries, finitions d'entrée)
         exclude_words = model_conf.get("keywords_exclude", [])
         if any(w.lower() in full_text for w in exclude_words):
             continue
 
-        # 5. Identification des finitions recherchées
+        # 4. Mots-clés obligatoires stricts (si configurés, au moins un mot-clé requis doit être présent)
+        keywords_must = model_conf.get("keywords_must", [])
+        if keywords_must:
+            if not any(k.lower() in full_text for k in keywords_must):
+                continue
+
+        # 5. Vérification de la puissance minimale (kW)
+        min_power_kw = model_conf.get("min_power_kw")
+        if min_power_kw and kw and kw < min_power_kw:
+            continue
+
+        # 6. Identification des finitions recherchées
         target_trims = model_conf.get("target_trims", [])
         detected_trims = [trim for trim in target_trims if trim.lower() in full_text]
         trim_label = " / ".join(detected_trims) if detected_trims else "À vérifier"
@@ -304,6 +342,7 @@ def evaluate_and_filter(raw_listings, model_conf, financial_conf, criteria_conf,
             "model_id": model_conf["id"],
             "model_name": model_conf["name"],
             "title": title,
+            "version_input": version_input,
             "price_raw": price_raw,
             "repat_cost": repat_cost,
             "total_price_key_in_hand": total_price_key_in_hand,

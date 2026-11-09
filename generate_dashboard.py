@@ -1105,7 +1105,7 @@ def build_html(results_data, config):
                 <span class="car-model-name">${{car.model_name}}</span>
                 ${{car.is_sweet_spot ? '<span class="chip" style="color:#22d3ee; border-color:rgba(6,182,212,0.4); font-weight:700">🎯 Cible Idéale</span>' : ''}}
               </div>
-              <h2 class="car-title" title="${{car.title}}">${{car.title}}</h2>
+              <h2 class="car-title" title="${{car.version_input ? car.version_input : car.title}}">${{car.version_input ? car.version_input : car.title}}</h2>
             </div>
 
             <div class="price-tag">
