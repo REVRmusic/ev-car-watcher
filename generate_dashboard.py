@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Générateur de tableau de bord HTML haut de gamme pour la veille des véhicules électriques.
-Design moderne, épuré, responsive, avec observatoire des décotes et courbes prévisionnelles Chart.js.
+Design moderne, épuré, responsive, avec observatoire des décotes et courbes prévisionnelles arrêtées en Mai 2027.
+Échéance cible : 23 Mai 2027 (Restitution LOA Peugeot e-2008 de Bastien / LM MUSIC).
 """
 
 import json
@@ -13,7 +14,8 @@ def build_html(results_data, config):
     criteria = config.get("criteria", {})
     trends = results_data.get("trends", {})
     stats_by_model = trends.get("stats_by_model", {})
-    budget_ceiling = trends.get("budget_ceiling_vehicle", 25631.14)
+    budget_ceiling = trends.get("budget_ceiling_vehicle", 23600.0)
+    models_config = {m["id"]: m for m in config.get("models", [])}
     
     generated_at = datetime.fromisoformat(results_data.get("generated_at", datetime.now().isoformat())).strftime("%d/%m/%Y à %H:%M")
     
@@ -23,17 +25,19 @@ def build_html(results_data, config):
     new_count = results_data.get("new_count", 0)
     price_drop_count = results_data.get("price_drop_count", 0)
     sweet_spot_count = len([x for x in listings if x.get("is_sweet_spot") and x.get("budget_status") in ["EXCELLENT_DEAL", "WITHIN_BUDGET"]])
+    autohero_count = len([x for x in listings if x.get("source") == "Autohero"])
 
     # Données JSON pour les scripts clients (annonces et statistiques prévisionnelles)
     listings_json = json.dumps(listings, ensure_ascii=False)
     trends_json = json.dumps(trends, ensure_ascii=False)
+    models_json = json.dumps(config.get("models", []), ensure_ascii=False)
 
     html = f"""<!DOCTYPE html>
 <html lang="fr" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Observatoire & Veille Véhicules Électriques — Décote & Prévisions</title>
+  <title>Observatoire & Veille Véhicules Électriques — Cap Mai 2027</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -61,6 +65,7 @@ def build_html(results_data, config):
       --accent-rose-soft: rgba(239, 68, 68, 0.15);
       --accent-purple: #8b5cf6;
       --accent-purple-soft: rgba(139, 92, 246, 0.15);
+      --accent-orange: #f97316;
       --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
       --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
       --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
@@ -82,7 +87,7 @@ def build_html(results_data, config):
     }}
 
     .container {{
-      max-width: 1400px;
+      max-width: 1440px;
       margin: 0 auto;
     }}
 
@@ -190,6 +195,44 @@ def build_html(results_data, config):
       color: #93c5fd;
     }}
 
+    /* SOURCES CHIPS */
+    .sources-chips {{
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }}
+
+    .source-chip {{
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border: 1px solid transparent;
+    }}
+
+    .source-chip.active {{
+      background-color: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.4);
+    }}
+
+    .source-chip.portal {{
+      background-color: rgba(59, 130, 246, 0.15);
+      color: #93c5fd;
+      border-color: rgba(59, 130, 246, 0.3);
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }}
+
+    .source-chip.portal:hover {{
+      background-color: rgba(59, 130, 246, 0.3);
+      transform: translateY(-1px);
+    }}
+
     /* STATS / KPI GRID */
     .kpi-grid {{
       display: grid;
@@ -229,6 +272,7 @@ def build_html(results_data, config):
     .kpi-card.cyan::before {{ background: linear-gradient(90deg, var(--accent-cyan), transparent); }}
     .kpi-card.emerald::before {{ background: linear-gradient(90deg, var(--accent-emerald), transparent); }}
     .kpi-card.amber::before {{ background: linear-gradient(90deg, var(--accent-amber), transparent); }}
+    .kpi-card.purple::before {{ background: linear-gradient(90deg, var(--accent-purple), transparent); }}
 
     .kpi-label {{
       font-size: 0.8rem;
@@ -338,44 +382,51 @@ def build_html(results_data, config):
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
-      padding: 0.25rem 0.65rem;
+      padding: 0.25rem 0.6rem;
       border-radius: 9999px;
       font-size: 0.75rem;
       font-weight: 700;
     }}
 
     .tag-horizon.success {{
-      background-color: var(--accent-emerald-soft);
+      background-color: rgba(16, 185, 129, 0.15);
       color: #34d399;
       border: 1px solid rgba(16, 185, 129, 0.3);
     }}
 
+    .tag-horizon.emerald {{
+      background-color: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+      border: 1px solid #10b981;
+    }}
+
     .tag-horizon.warning {{
-      background-color: var(--accent-amber-soft);
+      background-color: rgba(245, 158, 11, 0.15);
       color: #fbbf24;
       border: 1px solid rgba(245, 158, 11, 0.3);
     }}
 
     .tag-horizon.info {{
-      background-color: var(--accent-blue-soft);
-      color: #60a5fa;
+      background-color: rgba(59, 130, 246, 0.15);
+      color: #93c5fd;
       border: 1px solid rgba(59, 130, 246, 0.3);
     }}
 
     .tag-horizon.secondary {{
-      background-color: rgba(156, 163, 175, 0.1);
+      background-color: rgba(107, 114, 128, 0.15);
       color: #9ca3af;
-      border: 1px solid rgba(156, 163, 175, 0.2);
+      border: 1px solid rgba(107, 114, 128, 0.3);
     }}
 
-    /* GRAPHIQUES GRID */
+    /* CHARTS CONTAINER */
     .charts-grid {{
       display: grid;
-      grid-template-columns: 2fr 1fr;
+      grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
       gap: 1.5rem;
+      margin-top: 0.5rem;
     }}
 
-    @media (max-width: 1024px) {{
+    @media (max-width: 768px) {{
       .charts-grid {{
         grid-template-columns: 1fr;
       }}
@@ -384,7 +435,7 @@ def build_html(results_data, config):
     .chart-card {{
       background-color: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: 1rem;
+      border-radius: 0.85rem;
       padding: 1.25rem;
       display: flex;
       flex-direction: column;
@@ -394,25 +445,25 @@ def build_html(results_data, config):
     .chart-title {{
       font-size: 0.95rem;
       font-weight: 700;
-      color: var(--text-primary);
+      color: #ffffff;
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
     }}
 
     .chart-legend-hint {{
       font-size: 0.75rem;
       color: var(--text-muted);
-      font-weight: 500;
+      font-weight: 400;
     }}
 
     .chart-canvas-wrap {{
       position: relative;
-      height: 340px;
+      height: 320px;
       width: 100%;
     }}
 
-    /* CONTROLS & FILTERS */
+    /* CONTROLS / FILTERS */
     .controls-panel {{
       background-color: var(--bg-secondary);
       border: 1px solid var(--border-color);
@@ -424,20 +475,11 @@ def build_html(results_data, config):
       gap: 1rem;
     }}
 
-    .filter-row {{
+    .filters-row {{
       display: flex;
       flex-wrap: wrap;
-      gap: 0.5rem;
       align-items: center;
-    }}
-
-    .filter-label {{
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-right: 0.5rem;
+      gap: 0.75rem;
     }}
 
     .filter-btn {{
@@ -447,7 +489,7 @@ def build_html(results_data, config):
       padding: 0.45rem 0.9rem;
       border-radius: 0.5rem;
       font-size: 0.85rem;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
       display: inline-flex;
@@ -458,14 +500,14 @@ def build_html(results_data, config):
     .filter-btn:hover {{
       background-color: var(--bg-card-hover);
       color: var(--text-primary);
-      border-color: var(--border-highlight);
+      border-color: rgba(59, 130, 246, 0.4);
     }}
 
     .filter-btn.active {{
       background-color: var(--accent-blue);
-      color: #ffffff;
       border-color: var(--accent-blue);
-      font-weight: 600;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
     }}
 
     .filter-btn.sweet-btn.active {{
@@ -582,18 +624,41 @@ def build_html(results_data, config):
 
     .score-badge {{
       background-color: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #f8fafc;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.5);
+    }}
+
+    .source-tag {{
+      position: absolute;
+      bottom: 0.75rem;
+      left: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 0.35rem;
+      font-size: 0.7rem;
       font-weight: 700;
+      backdrop-filter: blur(8px);
+    }}
+
+    .source-tag.autoscout {{
+      background-color: rgba(30, 58, 138, 0.85);
+      color: #93c5fd;
+      border: 1px solid #3b82f6;
+    }}
+
+    .source-tag.autohero {{
+      background-color: rgba(194, 65, 12, 0.85);
+      color: #fed7aa;
+      border: 1px solid #f97316;
     }}
 
     .card-body {{
       padding: 1.25rem;
       display: flex;
       flex-direction: column;
-      flex: 1;
+      flex-grow: 1;
       gap: 1rem;
     }}
 
@@ -606,15 +671,15 @@ def build_html(results_data, config):
     .car-model-name {{
       font-size: 0.8rem;
       font-weight: 700;
+      color: var(--accent-blue);
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--accent-blue);
     }}
 
     .car-title {{
-      font-size: 1.15rem;
+      font-size: 1.05rem;
       font-weight: 700;
-      color: var(--text-primary);
+      color: #ffffff;
       line-height: 1.35;
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -622,12 +687,32 @@ def build_html(results_data, config):
       overflow: hidden;
     }}
 
-    /* FINANCIAL HIGHLIGHT BOX */
+    .price-tag {{
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.75rem;
+    }}
+
+    .price-value {{
+      font-size: 1.5rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      color: #ffffff;
+    }}
+
+    .price-sub {{
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }}
+
+    /* FINANCING SIMULATION BOX */
     .fin-box {{
-      background: rgba(15, 23, 42, 0.5);
-      border: 1px solid var(--border-color);
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.7), rgba(30, 41, 59, 0.5));
+      border: 1px solid rgba(59, 130, 246, 0.2);
       border-radius: 0.75rem;
-      padding: 0.9rem;
+      padding: 0.85rem;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 0.75rem;
@@ -640,50 +725,27 @@ def build_html(results_data, config):
 
     .fin-box-label {{
       font-size: 0.7rem;
-      color: var(--text-muted);
       text-transform: uppercase;
       font-weight: 600;
+      color: var(--text-muted);
     }}
 
     .fin-box-val {{
       font-size: 1.15rem;
       font-weight: 800;
       font-family: 'JetBrains Mono', monospace;
-    }}
-
-    .fin-box-val.target-ok {{
-      color: var(--accent-emerald);
-    }}
-
-    .fin-box-val.target-mid {{
       color: #60a5fa;
     }}
 
+    .fin-box-val.target-ok {{
+      color: #34d399;
+    }}
+
     .fin-box-val.target-warn {{
-      color: var(--accent-amber);
+      color: #fbbf24;
     }}
 
-    .price-tag {{
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px dashed var(--border-color);
-    }}
-
-    .price-value {{
-      font-size: 1.5rem;
-      font-weight: 800;
-      font-family: 'JetBrains Mono', monospace;
-      color: #ffffff;
-    }}
-
-    .price-sub {{
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-    }}
-
-    /* DETAILS CHIPS */
+    /* CHIPS GRID */
     .chips-grid {{
       display: flex;
       flex-wrap: wrap;
@@ -691,28 +753,28 @@ def build_html(results_data, config):
     }}
 
     .chip {{
-      background-color: var(--bg-secondary);
-      border: 1px solid var(--border-color);
+      font-size: 0.75rem;
+      background-color: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       padding: 0.25rem 0.55rem;
       border-radius: 0.4rem;
-      font-size: 0.8rem;
       color: var(--text-secondary);
       display: inline-flex;
       align-items: center;
-      gap: 0.3rem;
+      gap: 0.25rem;
     }}
 
     .card-footer {{
       margin-top: auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       padding-top: 0.75rem;
       border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }}
 
     .location-info {{
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--text-muted);
       display: flex;
       align-items: center;
@@ -720,48 +782,49 @@ def build_html(results_data, config):
     }}
 
     .btn-view {{
-      background-color: var(--accent-blue);
-      color: #ffffff;
-      padding: 0.55rem 1rem;
+      background-color: var(--accent-blue-soft);
+      border: 1px solid var(--accent-blue);
+      color: #93c5fd;
+      padding: 0.4rem 0.85rem;
       border-radius: 0.5rem;
-      text-decoration: none;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
+      text-decoration: none;
       transition: all 0.2s ease;
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
+      gap: 0.35rem;
     }}
 
     .btn-view:hover {{
-      background-color: #2563eb;
-      transform: translateY(-1px);
+      background-color: var(--accent-blue);
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
     }}
 
     .empty-state {{
       grid-column: 1 / -1;
+      padding: 4rem 2rem;
+      text-align: center;
       background-color: var(--bg-card);
       border: 1px dashed var(--border-color);
       border-radius: 1rem;
-      padding: 4rem 2rem;
-      text-align: center;
-      color: var(--text-secondary);
+      color: var(--text-muted);
     }}
   </style>
 </head>
 <body>
   <div class="container">
-    
     <!-- HEADER -->
     <header>
       <div class="header-top">
         <div class="title-group">
-          <h1>⚡ Surveillance Marché Véhicules Électriques</h1>
-          <p>Observatoire des prix, courbes prévisionnelles de décote & alertes d'opportunités</p>
+          <h1>⚡ EV Car Watcher — Cap Mai 2027</h1>
+          <p>Surveillance du marché des véhicules électriques d'occasion & Projection de décote BoursoBank pour Bastien (LM MUSIC)</p>
         </div>
         <div class="meta-badge">
           <span class="dot"></span>
-          <span>Dernière analyse : {generated_at}</span>
+          <span>Actualisé le {generated_at}</span>
         </div>
       </div>
 
@@ -769,63 +832,75 @@ def build_html(results_data, config):
       <div class="financial-banner">
         <div class="financial-details">
           <div class="fin-item">
-            <span>Barème Financement</span>
-            <span>BoursoBank Véhicule Propre (4,35 % TAEG fixe)</span>
+            <span>Banque & Offre</span>
+            <span>{financial.get('banque', 'BoursoBank')} (Prêt Véhicule Propre)</span>
           </div>
           <div class="fin-item">
-            <span>Durée</span>
-            <span>72 mois (6 ans)</span>
+            <span>Taux Fixe TAEG</span>
+            <span>{financial.get('taux_taeg_annuel', 0.0435)*100:.2f} % (Avec Justificatif)</span>
+          </div>
+          <div class="fin-item">
+            <span>Durée Amortissable</span>
+            <span>{financial.get('duree_mois', 72)} mois (6 ans)</span>
           </div>
           <div class="fin-item">
             <span>Mensualité Cible</span>
-            <span>≤ 300 € / mois</span>
+            <span style="color:#34d399">≤ {financial.get('mensualite_max', 300):.0f} € / mois</span>
           </div>
           <div class="fin-item">
-            <span>Apport Net</span>
+            <span>Apport Prévu</span>
             <span>5 000 € à 7 000 €</span>
           </div>
           <div class="fin-item">
-            <span>Plafond Véhicule Net</span>
-            <span style="color:#34d399">~{budget_ceiling:,.0f} €</span>
-          </div>
-          <div class="fin-item">
-            <span>Règle Année & Km</span>
-            <span style="color:#67e8f9">2023-2025 | ≤ 100k km (Idéal 50k-60k km)</span>
+            <span>Date Butoir Projet</span>
+            <span style="color:#f59e0b">23 Mai 2027 (Restitution LOA 2008)</span>
           </div>
         </div>
-      </div>
 
-      <!-- KPI METRICS -->
-      <div class="kpi-grid">
-        <div class="kpi-card emerald">
-          <span class="kpi-label">Dans le budget (≤ 300€/m)</span>
-          <span class="kpi-value">{in_budget_count}</span>
-          <span class="kpi-subtext">Directement finançables</span>
-        </div>
-        <div class="kpi-card cyan">
-          <span class="kpi-label">🎯 Cibles Idéales (2023+ & ≤ 60k km)</span>
-          <span class="kpi-value">{sweet_spot_count}</span>
-          <span class="kpi-subtext">Dans le budget & critères parfaits</span>
-        </div>
-        <div class="kpi-card amber">
-          <span class="kpi-label">Opportunités à négocier</span>
-          <span class="kpi-value">{negotiable_count}</span>
-          <span class="kpi-subtext">Dépassement &lt; 25 €/mois</span>
-        </div>
-        <div class="kpi-card">
-          <span class="kpi-label">Total annonces qualifiées</span>
-          <span class="kpi-value">{total_listings}</span>
-          <span class="kpi-subtext">Exclusion stricte &gt; 100k km</span>
+        <div class="sources-chips">
+          <span class="source-chip active">● AutoScout24</span>
+          <span class="source-chip active">● Autohero Reconditionné</span>
+          <a href="https://www.spoticar.fr/voitures-occasion/peugeot/3008" target="_blank" rel="noopener noreferrer" class="source-chip portal">↗ Spoticar e-3008</a>
+          <a href="https://www.lacentrale.fr/listing?energies=elec" target="_blank" rel="noopener noreferrer" class="source-chip portal">↗ La Centrale</a>
         </div>
       </div>
     </header>
+
+    <!-- KPI STATS CARDS -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <span class="kpi-label">Annonces Surveillées</span>
+        <span class="kpi-value">{total_listings}</span>
+        <span class="kpi-subtext">Multi-sources ({total_listings - autohero_count} AutoScout24 + {autohero_count} Autohero)</span>
+      </div>
+      <div class="kpi-card emerald">
+        <span class="kpi-label">Dans le Budget Actuel</span>
+        <span class="kpi-value">{in_budget_count}</span>
+        <span class="kpi-subtext">≤ 300 €/mois (BoursoBank 4,35 % sur 72m)</span>
+      </div>
+      <div class="kpi-card cyan">
+        <span class="kpi-label">Cible Idéale (Sweet Spot)</span>
+        <span class="kpi-value">{sweet_spot_count}</span>
+        <span class="kpi-subtext">2023–2025 & ≤ 60 000 km & dans le budget</span>
+      </div>
+      <div class="kpi-card amber">
+        <span class="kpi-label">Négociables Immédiates</span>
+        <span class="kpi-value">{negotiable_count}</span>
+        <span class="kpi-subtext">Dépassement &lt; 25 €/mois (&lt; 1 600 € d'effort)</span>
+      </div>
+      <div class="kpi-card purple">
+        <span class="kpi-label">Horizon Échéance LOA</span>
+        <span class="kpi-value" style="color:#c084fc">Mai 2027</span>
+        <span class="kpi-subtext">Fin contrat Peugeot e-2008 (reste 6 mois)</span>
+      </div>
+    </div>
 
     <!-- OBSERVATOIRE DES PRIX & COURBES DE DÉCOTE -->
     <section class="observatory-section">
       <div class="section-header">
         <div>
-          <h2 class="section-title">📊 Observatoire de Marché & Prévision de Décote</h2>
-          <p class="section-subtitle">Suivi des fourchettes de prix en temps réel et projections mathématiques vers votre budget cible ({budget_ceiling:,.0f} € net)</p>
+          <h2 class="section-title">📊 Observatoire de Marché & Trajectoire vers Mai 2027</h2>
+          <p class="section-subtitle">Suivi des prix réels constatés et projections mathématiques jusqu'à l'échéance de votre LOA le 23 mai 2027 (Plafond clé en main : {budget_ceiling:,.0f} €)</p>
         </div>
       </div>
 
@@ -834,35 +909,63 @@ def build_html(results_data, config):
         <table class="trends-table">
           <thead>
             <tr>
-              <th>Modèle surveillé</th>
+              <th>Modèle & Atouts Clés (DJ / Logistique)</th>
               <th>Annonces</th>
-              <th>Prix Min</th>
+              <th>Prix Min Actuel</th>
               <th>Prix Médian</th>
-              <th>Prix Max</th>
-              <th>Mensualité Min (Apport 7k€)</th>
-              <th>Horizon Budget BoursoBank</th>
+              <th>Prix Estimé Mai 2027</th>
+              <th>Mensualité Mai 2027 (Apport 7k€)</th>
+              <th>Statut Mai 2027</th>
+              <th>Accès Plateformes</th>
             </tr>
           </thead>
           <tbody>
 """
 
     for m_id, stats in stats_by_model.items():
+        m_conf = models_config.get(m_id, {})
         min_p = f"{stats['min_price']:,} €".replace(",", " ")
         med_p = f"{stats['median_price']:,} €".replace(",", " ")
-        max_p = f"{stats['max_price']:,} €".replace(",", " ")
-        mens_min = f"{stats['min_mens_7k']} €/m"
-        horizon = stats['budget_horizon']
-        h_class = stats['horizon_class']
+        p_mai = f"{stats.get('price_mai_2027', 0):,} €".replace(",", " ")
+        mens_mai = f"{stats.get('mens_mai_2027_7k', 0)} €/m"
+        st_mai = stats.get('status_mai_2027', 'En cours')
+        st_class = stats.get('status_mai_class', 'info')
+        
+        # Badges d'atouts spécifiques Bastien / DJ
+        features = []
+        if m_conf.get("trunk_liters"):
+            features.append(f"📦 {m_conf['trunk_liters']} L")
+        if m_conf.get("has_v2l"):
+            features.append(f"⚡ V2L {m_conf.get('v2l_power', '3 kW')}")
+        if m_conf.get("has_kw_display"):
+            features.append("📊 kW direct")
+        if m_conf.get("has_pac"):
+            features.append("❄️ PAC")
+        feat_str = " · ".join(features)
+
+        spot_url = m_conf.get("spoticar_url", "https://www.spoticar.fr")
+        lc_url = m_conf.get("lacentrale_url", "https://www.lacentrale.fr")
+        as_url = m_conf.get("url", "#")
 
         html += f"""
             <tr>
-              <td class="cell-model">{stats['model_name']}</td>
+              <td>
+                <div class="cell-model">{stats['model_name']}</div>
+                <div style="font-size:0.75rem; color:#9ca3af; margin-top:2px;">{feat_str}</div>
+              </td>
               <td class="cell-mono">{stats['count']}</td>
               <td class="cell-mono" style="color:#34d399; font-weight:700;">{min_p}</td>
               <td class="cell-mono">{med_p}</td>
-              <td class="cell-mono" style="color:#94a3b8;">{max_p}</td>
-              <td class="cell-mono" style="font-weight:700; color:#93c5fd;">{mens_min}</td>
-              <td><span class="tag-horizon {h_class}">{horizon}</span></td>
+              <td class="cell-mono" style="color:#60a5fa; font-weight:700;">{p_mai}</td>
+              <td class="cell-mono" style="font-weight:700; color:{'#34d399' if stats.get('mens_mai_2027_7k', 999) <= 300 else '#fbbf24'};">{mens_mai}</td>
+              <td><span class="tag-horizon {st_class}">{st_mai}</span></td>
+              <td>
+                <div style="display:flex; gap:0.35rem;">
+                  <a href="{as_url}" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem; color:#93c5fd; text-decoration:none; padding:2px 6px; background:rgba(59,130,246,0.15); border-radius:4px; border:1px solid rgba(59,130,246,0.3)">AutoScout</a>
+                  <a href="{spot_url}" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem; color:#fca5a5; text-decoration:none; padding:2px 6px; background:rgba(239,68,68,0.15); border-radius:4px; border:1px solid rgba(239,68,68,0.3)">Spoticar</a>
+                  <a href="{lc_url}" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem; color:#fde047; text-decoration:none; padding:2px 6px; background:rgba(234,179,8,0.15); border-radius:4px; border:1px solid rgba(234,179,8,0.3)">LaCentrale</a>
+                </div>
+              </td>
             </tr>
         """
 
@@ -873,11 +976,11 @@ def build_html(results_data, config):
 
       <!-- GRAPHIQUES INTERACTIFS -->
       <div class="charts-grid">
-        <!-- COURBE PRÉVISIONNELLE -->
+        <!-- COURBE PRÉVISIONNELLE ARRÊTÉE EN MAI 2027 -->
         <div class="chart-card">
           <div class="chart-title">
-            <span>📈 Courbes Prévisionnelles de Décote (Projection 24 Mois)</span>
-            <span class="chart-legend-hint">Cliquez sur un modèle pour filtrer</span>
+            <span>📈 Courbes Prévisionnelles de Décote (Cap Mai 2027)</span>
+            <span class="chart-legend-hint">Échéance : 23 Mai 2027 (Restitution LOA e-2008)</span>
           </div>
           <div class="chart-canvas-wrap">
             <canvas id="depreciationChart"></canvas>
@@ -887,7 +990,7 @@ def build_html(results_data, config):
         <!-- POSITIONNEMENT ACTUEL PAR MODÈLE -->
         <div class="chart-card">
           <div class="chart-title">
-            <span>⚖️ Prix Minimum Actuel vs Plafond Budget</span>
+            <span>⚖️ Prix Minimum Actuel vs Plafond Budget Clé en Main</span>
           </div>
           <div class="chart-canvas-wrap">
             <canvas id="budgetComparisonChart"></canvas>
@@ -898,40 +1001,41 @@ def build_html(results_data, config):
 
     <!-- FILTRES INTERACTIFS -->
     <div class="controls-panel">
-      <div class="filter-row">
-        <span class="filter-label">Filtres :</span>
-        <button class="filter-btn active" data-filter-type="budget" data-val="all">Tous les résultats</button>
-        <button class="filter-btn sweet-btn" data-filter-type="budget" data-val="sweet_spot" style="color:#22d3ee; border-color:rgba(6,182,212,0.4)">🎯 Cible Idéale (2023+ & ≤ 60k km)</button>
-        <button class="filter-btn" data-filter-type="budget" data-val="budget_ok">Dans le budget (≤ 300€/m)</button>
-        <button class="filter-btn" data-filter-type="budget" data-val="pepite">Top Pépites (Score ≥ 8.0)</button>
-        <button class="filter-btn" data-filter-type="budget" data-val="negotiable">À négocier</button>
+      <div class="filters-row">
+        <span style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-right:0.5rem;">Statut :</span>
+        <button class="filter-btn active" data-filter="all">Toutes ({total_listings})</button>
+        <button class="filter-btn sweet-btn" data-filter="sweet_spot">🎯 Cibles Idéales (2023+ &amp; ≤60k km &amp; Budget) ({sweet_spot_count})</button>
+        <button class="filter-btn" data-filter="budget_ok">✅ Dans le budget ({in_budget_count})</button>
+        <button class="filter-btn" data-filter="negotiable">⚡ Négociables ({negotiable_count})</button>
+        <button class="filter-btn" data-filter="pepite">💎 Pépites (Score ≥ 8/10)</button>
+        <button class="filter-btn" data-filter="autohero">🛡️ Autohero Reconditionné ({autohero_count})</button>
       </div>
 
-      <div class="filter-row" style="margin-top: 0.5rem;">
-        <span class="filter-label">Modèle :</span>
-        <button class="filter-btn active" data-filter-type="model" data-val="all">Tous ({total_listings})</button>
-        <button class="filter-btn" data-filter-type="model" data-val="megane_etech_iconic">Mégane E-Tech</button>
-        <button class="filter-btn" data-filter-type="model" data-val="skoda_enyaq_80">Skoda Enyaq 80</button>
-        <button class="filter-btn" data-filter-type="model" data-val="hyundai_ioniq_5">Ioniq 5</button>
-        <button class="filter-btn" data-filter-type="model" data-val="kia_ev6">Kia EV6</button>
-        <button class="filter-btn" data-filter-type="model" data-val="kia_niro_ev_premium">Kia Niro EV</button>
-        <button class="filter-btn" data-filter-type="model" data-val="mustang_mache_er">Mustang Mach-E</button>
-        <button class="filter-btn" data-filter-type="model" data-val="hyundai_kona_2_exec">Kona 2 Executive</button>
-        <button class="filter-btn" data-filter-type="model" data-val="peugeot_e3008_gt">Peugeot e-3008 GT</button>
-        <button class="filter-btn" data-filter-type="model" data-val="byd_seal_u_design">BYD Seal U</button>
+      <div class="filters-row" style="margin-top:0.25rem;">
+        <span style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-right:0.5rem;">Modèle :</span>
+        <button class="filter-btn model-btn active" data-model="all">Tous les modèles</button>
+        <button class="filter-btn model-btn" data-model="skoda_enyaq_80">Skoda Enyaq 80</button>
+        <button class="filter-btn model-btn" data-model="mustang_mache_er">Mustang Mach-E</button>
+        <button class="filter-btn model-btn" data-model="megane_etech_iconic">Mégane E-Tech</button>
+        <button class="filter-btn model-btn" data-model="hyundai_ioniq_5">Ioniq 5</button>
+        <button class="filter-btn model-btn" data-model="kia_ev6">Kia EV6</button>
+        <button class="filter-btn model-btn" data-model="kia_niro_ev_premium">Kia Niro EV</button>
+        <button class="filter-btn model-btn" data-model="byd_seal_u_design">BYD Seal U</button>
+        <button class="filter-btn model-btn" data-model="hyundai_kona_2_exec">Kona 2 Exec</button>
+        <button class="filter-btn model-btn" data-model="peugeot_e3008_gt">Peugeot e-3008 GT</button>
       </div>
     </div>
 
-    <!-- GRILLE DES VÉHICULES -->
-    <div class="cars-grid" id="cars-grid">
-      <!-- Les cartes seront injectées dynamiquement par JS -->
-    </div>
-
+    <!-- GRILLE DES OFFRES QUALIFIÉES -->
+    <main class="cars-grid" id="cars-grid">
+      <!-- Rempli dynamiquement par JS -->
+    </main>
   </div>
 
   <script>
     const listingsData = {listings_json};
     const trendsData = {trends_json};
+    const modelsData = {models_json};
     let currentBudgetFilter = 'all';
     let currentModelFilter = 'all';
 
@@ -940,11 +1044,9 @@ def build_html(results_data, config):
       container.innerHTML = '';
 
       const filtered = listingsData.filter(item => {{
-        // Filtre Modèle
         if (currentModelFilter !== 'all' && item.model_id !== currentModelFilter) {{
           return false;
         }}
-        // Filtres Spécifiques
         if (currentBudgetFilter === 'sweet_spot') {{
           return item.is_sweet_spot && (item.budget_status === 'EXCELLENT_DEAL' || item.budget_status === 'WITHIN_BUDGET');
         }} else if (currentBudgetFilter === 'budget_ok') {{
@@ -953,6 +1055,8 @@ def build_html(results_data, config):
           return item.budget_status === 'NEGOTIABLE';
         }} else if (currentBudgetFilter === 'pepite') {{
           return item.score >= 8.0;
+        }} else if (currentBudgetFilter === 'autohero') {{
+          return item.source === 'Autohero';
         }}
         return true;
       }});
@@ -981,6 +1085,11 @@ def build_html(results_data, config):
         const mens5kClass = car.mens_5k <= 300 ? 'target-ok' : (car.mens_5k <= 325 ? 'target-warn' : '');
         const mens7kClass = car.mens_7k <= 300 ? 'target-ok' : (car.mens_7k <= 325 ? 'target-warn' : '');
 
+        const isAutohero = car.source === 'Autohero';
+        const sourceTagHtml = isAutohero 
+          ? `<span class="source-tag autohero">🛡️ Autohero Reconditionné</span>`
+          : `<span class="source-tag autoscout">🌐 AutoScout24</span>`;
+
         card.innerHTML = `
           <div class="card-image-wrap">
             <img class="card-image" src="${{imageSrc}}" alt="${{car.title}}" loading="lazy" onerror="this.src='${{imgPlaceholder}}'">
@@ -988,6 +1097,7 @@ def build_html(results_data, config):
               <span class="badge ${{badgeClass}}">${{car.budget_badge}}</span>
               <span class="badge score-badge">★ ${{car.score}}/10</span>
             </div>
+            ${{sourceTagHtml}}
           </div>
           <div class="card-body">
             <div class="car-header">
@@ -1000,7 +1110,7 @@ def build_html(results_data, config):
 
             <div class="price-tag">
               <span class="price-value">${{car.price_raw.toLocaleString('fr-FR')}} €</span>
-              <span class="price-sub">Clé en main : ${{(car.price_raw + car.repat_cost).toLocaleString('fr-FR')}} €</span>
+              <span class="price-sub">Clé en main : ${{(car.price_raw + (car.repat_cost || 350)).toLocaleString('fr-FR')}} €</span>
             </div>
 
             <div class="fin-box">
@@ -1018,13 +1128,18 @@ def build_html(results_data, config):
               ${{car.km ? (car.km <= 60000 ? `<span class="chip" style="color:#34d399; font-weight:700; border-color:rgba(52,211,153,0.3)">🛣️ ${{car.km.toLocaleString('fr-FR')}} km (Idéal)</span>` : `<span class="chip">🛣️ ${{car.km.toLocaleString('fr-FR')}} km</span>`) : ''}}
               ${{car.year ? (car.year >= 2023 ? `<span class="chip" style="color:#67e8f9; font-weight:700; border-color:rgba(103,232,249,0.3)">📅 ${{car.year}} (Récent)</span>` : `<span class="chip">📅 ${{car.year}}</span>`) : ''}}
               ${{car.power_ch ? `<span class="chip">⚡ ${{car.power_ch}} ch (${{car.power_kw}} kW)</span>` : ''}}
-              ${{car.trim_label ? `<span class="chip" style="color:#93c5fd; border-color:rgba(59,130,246,0.3)">🏷️ ${{car.trim_label}}</span>` : ''}}
+              ${{car.has_v2l ? `<span class="chip" style="color:#f59e0b; border-color:rgba(245,158,11,0.4)">⚡ Prise V2L 230V (${{car.v2l_power || '3 kW'}})</span>` : ''}}
+              ${{car.trunk_liters ? `<span class="chip">📦 Coffre ${{car.trunk_liters}} L</span>` : ''}}
+              ${{car.has_kw_display ? `<span class="chip">📊 kW direct</span>` : ''}}
+              ${{car.has_pac ? `<span class="chip" style="color:#a7f3d0">❄️ Pompe à Chaleur</span>` : ''}}
+              ${{car.has_warranty ? `<span class="chip" style="color:#fdba74">🛡️ ${{car.warranty_text || 'Garantie incluse'}}</span>` : ''}}
+              ${{car.trim_label && car.trim_label !== 'À vérifier' ? `<span class="chip" style="color:#93c5fd; border-color:rgba(59,130,246,0.3)">🏷️ ${{car.trim_label}}</span>` : ''}}
               ${{car.price_drop > 0 ? `<span class="chip" style="color:#34d399; font-weight:700">📉 Baisse: -${{car.price_drop}} €</span>` : ''}}
             </div>
 
             <div class="card-footer">
               <div class="location-info">
-                <span>📍 ${{car.city}} (${{car.zip}})</span>
+                <span>📍 ${{car.city}}${{car.zip ? ' (' + car.zip + ')' : ''}}</span>
               </div>
               <a href="${{car.ad_url}}" target="_blank" rel="noopener noreferrer" class="btn-view">
                 Consulter ↗
@@ -1041,23 +1156,26 @@ def build_html(results_data, config):
     function initCharts() {{
       const ctxDeprec = document.getElementById('depreciationChart').getContext('2d');
       const ctxBudget = document.getElementById('budgetComparisonChart').getContext('2d');
+
       const stats = trendsData.stats_by_model || {{}};
-      const budgetMax = trendsData.budget_ceiling_vehicle || 25631;
+      const budgetMax = trendsData.budget_ceiling_vehicle || 23600;
 
       const palette = [
-        '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6',
-        '#06b6d4', '#14b8a6', '#f97316', '#6366f1'
+        '#38bdf8', '#34d399', '#a78bfa', '#f472b6', '#fbbf24',
+        '#4ade80', '#2dd4bf', '#fb923c', '#818cf8', '#e879f9'
       ];
 
-      // 1. DATASETS COURBE DE DÉCOTE
-      const labels = ['Aujourd\\'hui', '+3 mois', '+6 mois', '+9 mois', '+12 mois', '+18 mois', '+24 mois'];
+      // 1. DATASETS COURBE DE DÉCOTE ARRÊTÉE EN MAI 2027
+      const labels = trendsData.forecast_labels || [
+        'Nov 2026 (Actuel)', 'Déc 2026', 'Jan 2027', 'Fév 2027', 'Mar 2027', 'Avr 2027', 'Mai 2027 (Échéance LOA)'
+      ];
       const datasets = [];
       let colorIdx = 0;
 
-      // Ligne de budget horizontale
+      // Ligne de budget BoursoBank horizontale (300 € / mois)
       datasets.push({{
-        label: 'Plafond Budget BoursoBank (300€/m)',
-        data: [budgetMax, budgetMax, budgetMax, budgetMax, budgetMax, budgetMax, budgetMax],
+        label: 'Plafond Budget BoursoBank (300€/m sur 72m)',
+        data: Array(labels.length).fill(budgetMax),
         borderColor: '#22c55e',
         borderWidth: 2,
         borderDash: [6, 6],
@@ -1075,9 +1193,9 @@ def build_html(results_data, config):
           borderColor: color,
           backgroundColor: color,
           borderWidth: 2,
-          tension: 0.35,
-          pointRadius: 3,
-          pointHoverRadius: 6,
+          tension: 0.3,
+          pointRadius: [3, 3, 3, 3, 3, 3, 6], // Point plus large sur Mai 2027
+          pointHoverRadius: 7,
           fill: false,
           order: 1
         }});
@@ -1106,54 +1224,52 @@ def build_html(results_data, config):
           scales: {{
             x: {{
               grid: {{ color: 'rgba(255, 255, 255, 0.05)' }},
-              ticks: {{ color: '#9ca3af', font: {{ size: 11 }} }}
+              ticks: {{ color: '#9ca3af', font: {{ size: 10 }} }}
             }},
             y: {{
               grid: {{ color: 'rgba(255, 255, 255, 0.05)' }},
               ticks: {{
                 color: '#9ca3af',
                 font: {{ size: 11 }},
-                callback: function(val) {{ return (val / 1000) + ' k€'; }}
+                callback: function(val) {{ return (val / 1000).toFixed(0) + ' k€'; }}
               }}
             }}
           }}
         }}
       }});
 
-      // 2. BAR CHART COMPARATIF DES PRIX MIN ACTUELS
-      const modelNames = [];
-      const minPrices = [];
+      // 2. POSITIONNEMENT ACTUEL VS PLAFOND
+      const barLabels = [];
+      const barPrices = [];
       const barColors = [];
 
       for (const [mId, s] of Object.entries(stats)) {{
-        modelNames.push(s.model_name.split(' ')[0] + ' ' + (s.model_name.split(' ')[1] || ''));
-        minPrices.push(s.min_price);
-        barColors.push(s.min_price <= budgetMax ? '#10b981' : (s.min_price <= budgetMax + 2000 ? '#f59e0b' : '#3b82f6'));
+        barLabels.push(s.model_name.split(' (')[0].replace('Grande Autonomie', 'LR'));
+        barPrices.push(s.min_price);
+        barColors.push(s.min_price <= budgetMax ? '#10b981' : (s.min_price <= budgetMax + 1600 ? '#f59e0b' : '#ef4444'));
       }}
 
       new Chart(ctxBudget, {{
         type: 'bar',
         data: {{
-          labels: modelNames,
+          labels: barLabels,
           datasets: [{{
-            label: 'Prix Min Actuel (€)',
-            data: minPrices,
+            label: 'Prix Minimum Constaté (€)',
+            data: barPrices,
             backgroundColor: barColors,
-            borderRadius: 6
+            borderRadius: 6,
           }}]
         }},
         options: {{
-          indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
+          indexAxis: 'y',
           plugins: {{
             legend: {{ display: false }},
             tooltip: {{
               callbacks: {{
                 label: function(ctx) {{
-                  const diff = ctx.parsed.x - budgetMax;
-                  const diffStr = diff <= 0 ? ' (Dans le budget)' : ' (+' + diff.toLocaleString('fr-FR') + ' €)';
-                  return ctx.parsed.x.toLocaleString('fr-FR') + ' €' + diffStr;
+                  return 'Prix Min : ' + ctx.parsed.x.toLocaleString('fr-FR') + ' € (Plafond : ' + Math.round(budgetMax).toLocaleString('fr-FR') + ' €)';
                 }}
               }}
             }}
@@ -1163,58 +1279,43 @@ def build_html(results_data, config):
               grid: {{ color: 'rgba(255, 255, 255, 0.05)' }},
               ticks: {{
                 color: '#9ca3af',
-                callback: function(val) {{ return (val / 1000) + ' k€'; }}
+                callback: function(val) {{ return (val / 1000).toFixed(0) + ' k€'; }}
               }}
             }},
             y: {{
               grid: {{ display: false }},
-              ticks: {{ color: '#e5e7eb', font: {{ size: 11 }} }}
+              ticks: {{ color: '#f3f4f6', font: {{ size: 11 }} }}
             }}
           }}
         }}
       }});
     }}
 
-    // Écouteurs sur les filtres
-    document.querySelectorAll('.filter-btn').forEach(btn => {{
-      btn.addEventListener('click', (e) => {{
-        const btnElem = e.currentTarget;
-        const type = btnElem.dataset.filterType;
-        const val = btnElem.dataset.val;
-
-        document.querySelectorAll(`.filter-btn[data-filter-type="${{type}}"]`).forEach(b => b.classList.remove('active'));
-        btnElem.classList.add('active');
-
-        if (type === 'budget') {{
-          currentBudgetFilter = val;
-        }} else if (type === 'model') {{
-          currentModelFilter = val;
-        }}
-
+    // Gestion des écouteurs de filtres
+    document.querySelectorAll('.filter-btn:not(.model-btn)').forEach(btn => {{
+      btn.addEventListener('click', () => {{
+        document.querySelectorAll('.filter-btn:not(.model-btn)').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentBudgetFilter = btn.dataset.filter;
         renderListings();
       }});
     }});
 
-    // Démarrage
-    renderListings();
-    initCharts();
+    document.querySelectorAll('.model-btn').forEach(btn => {{
+      btn.addEventListener('click', () => {{
+        document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentModelFilter = btn.dataset.model;
+        renderListings();
+      }});
+    }});
+
+    // Initialisation au chargement
+    document.addEventListener('DOMContentLoaded', () => {{
+      renderListings();
+      initCharts();
+    }});
   </script>
 </body>
-</html>
-"""
+</html>"""
     return html
-
-if __name__ == "__main__":
-    import os
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    res_path = os.path.join(BASE_DIR, "results.json")
-    conf_path = os.path.join(BASE_DIR, "config.json")
-    if os.path.exists(res_path) and os.path.exists(conf_path):
-        with open(res_path, "r", encoding="utf-8") as f:
-            res = json.load(f)
-        with open(conf_path, "r", encoding="utf-8") as f:
-            conf = json.load(f)
-        out = build_html(res, conf)
-        with open(os.path.join(BASE_DIR, "rapport_marche_ve.html"), "w", encoding="utf-8") as f:
-            f.write(out)
-        print("HTML dashboard generated successfully.")

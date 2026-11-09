@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+"""
+Trends Engine - Analyse statistique, décote en temps réel et projection jusqu'en Mai 2027.
+Échéance cible : 23 Mai 2027 (Restitution contrat LOA Peugeot e-2008).
+"""
+
 import json
 import math
 import os
@@ -6,22 +12,44 @@ from datetime import datetime
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TRENDS_PATH = os.path.join(BASE_DIR, "market_trends.json")
 
+def calculate_monthly_payment(principal, annual_rate, duration_months):
+    if principal <= 0:
+        return 0.0
+    r = annual_rate / 12.0
+    if r == 0:
+        return round(principal / duration_months, 2)
+    m = principal * (r / (1.0 - (1.0 + r) ** (-duration_months)))
+    return round(m, 2)
+
 def compute_model_statistics_and_forecast(all_matched, config):
     financial = config.get("financial", {})
     annual_rate = financial.get("taux_taeg_annuel", 0.0435)
     duration = financial.get("duree_mois", 72)
     mens_max = financial.get("mensualite_max", 300.0)
     apport_7k = financial.get("apport_max", 7000.0)
+    apport_5k = financial.get("apport_min", 5000.0)
     repat_cost = financial.get("cout_rapatriement_estime", 350.0)
     
-    # Capacité d'emprunt max BoursoBank
+    # Capacité d'emprunt max BoursoBank (mensualité 300 € sur 72 mois à 4,35 %)
     r = annual_rate / 12.0
     loan_max = mens_max * (1.0 - (1.0 + r)**(-duration)) / r
     budget_max_vehicle = loan_max + apport_7k - repat_cost # Prix max du véhicule clé en main
 
     # Taux annuel de décote estimé pour les VE d'occasion récents (12%/an)
     annual_depreciation = 0.12
-    monthly_deprec_factor = (1.0 - annual_depreciation) ** (1.0 / 12.0)
+
+    # L'horizon s'arrête exactement en Mai 2027 (Mois 0 à Mois 6)
+    # Novembre 2026 -> Mai 2027 = 6 mois
+    forecast_timeline = [0, 1, 2, 3, 4, 5, 6]
+    forecast_labels = [
+        "Nov 2026 (Actuel)",
+        "Déc 2026",
+        "Jan 2027",
+        "Fév 2027",
+        "Mar 2027",
+        "Avr 2027",
+        "Mai 2027 (Échéance LOA)"
+    ]
 
     stats_by_model = {}
     
@@ -29,7 +57,6 @@ def compute_model_statistics_and_forecast(all_matched, config):
         m_id = model_conf["id"]
         m_name = model_conf["name"]
         
-        # Listings pour ce modèle
         m_listings = [x for x in all_matched if x["model_id"] == m_id]
         
         if not m_listings:
@@ -46,7 +73,18 @@ def compute_model_statistics_and_forecast(all_matched, config):
         
         in_budget_items = [x for x in m_listings if x["budget_status"] in ["EXCELLENT_DEAL", "WITHIN_BUDGET"]]
         
-        # Délai estimé d'accessibilité au budget (mois)
+        # Courbe prévisionnelle mensuelle jusqu'en Mai 2027 (7 points)
+        forecast_min_prices = [round(min_p * ((1.0 - annual_depreciation) ** (m / 12.0))) for m in forecast_timeline]
+        forecast_median_prices = [round(median_p * ((1.0 - annual_depreciation) ** (m / 12.0))) for m in forecast_timeline]
+
+        # Prix et mensualités projetés en Mai 2027
+        price_mai_2027 = forecast_min_prices[-1]
+        loan_mai_7k = max(0, price_mai_2027 + repat_cost - apport_7k)
+        loan_mai_5k = max(0, price_mai_2027 + repat_cost - apport_5k)
+        mens_mai_2027_7k = calculate_monthly_payment(loan_mai_7k, annual_rate, duration)
+        mens_mai_2027_5k = calculate_monthly_payment(loan_mai_5k, annual_rate, duration)
+
+        # Délai d'accessibilité au budget
         if min_p <= budget_max_vehicle:
             months_to_budget = 0
             budget_horizon = "Immédiat (Déjà dans le budget)"
@@ -54,20 +92,28 @@ def compute_model_statistics_and_forecast(all_matched, config):
         else:
             months_to_budget = math.ceil(math.log(budget_max_vehicle / min_p) / math.log(1 - annual_depreciation) * 12)
             if months_to_budget <= 6:
-                budget_horizon = f"D'ici ~{months_to_budget} mois (Court terme)"
+                budget_horizon = f"Accessible d'ici Mai 2027 (~{months_to_budget} mois)"
                 horizon_class = "warning"
             elif months_to_budget <= 12:
-                budget_horizon = f"D'ici ~{months_to_budget} mois (Moyen terme)"
+                budget_horizon = f"D'ici ~{months_to_budget} mois (Post-Mai 2027)"
                 horizon_class = "info"
             else:
                 budget_horizon = f"D'ici ~{months_to_budget} mois"
                 horizon_class = "secondary"
 
-        # Courbe prévisionnelle sur 24 mois pour ce modèle
-        # Points à : M0 (Aujourd'hui), M+3, M+6, M+9, M+12, M+18, M+24
-        forecast_timeline = [0, 3, 6, 9, 12, 18, 24]
-        forecast_min_prices = [round(min_p * ((1.0 - annual_depreciation) ** (m / 12.0))) for m in forecast_timeline]
-        forecast_median_prices = [round(median_p * ((1.0 - annual_depreciation) ** (m / 12.0))) for m in forecast_timeline]
+        # Statut spécifique Mai 2027
+        if min_p <= budget_max_vehicle:
+            status_mai_2027 = "🔥 Déjà dans le budget"
+            status_mai_class = "success"
+        elif mens_mai_2027_7k <= mens_max:
+            status_mai_2027 = "🎯 Dans le budget en Mai 2027"
+            status_mai_class = "emerald"
+        elif mens_mai_2027_7k <= (mens_max + 25.0):
+            status_mai_2027 = "⚡ Négociable en Mai 2027"
+            status_mai_class = "warning"
+        else:
+            status_mai_2027 = "⏳ Hors budget en Mai 2027"
+            status_mai_class = "secondary"
 
         stats_by_model[m_id] = {
             "model_id": m_id,
@@ -85,8 +131,14 @@ def compute_model_statistics_and_forecast(all_matched, config):
             "budget_horizon": budget_horizon,
             "horizon_class": horizon_class,
             "forecast_timeline": forecast_timeline,
+            "forecast_labels": forecast_labels,
             "forecast_min_prices": forecast_min_prices,
             "forecast_median_prices": forecast_median_prices,
+            "price_mai_2027": price_mai_2027,
+            "mens_mai_2027_7k": mens_mai_2027_7k,
+            "mens_mai_2027_5k": mens_mai_2027_5k,
+            "status_mai_2027": status_mai_2027,
+            "status_mai_class": status_mai_class,
         }
 
     # Mise à jour de l'historique persistant market_trends.json
@@ -102,7 +154,6 @@ def compute_model_statistics_and_forecast(all_matched, config):
     now_date = now.strftime("%Y-%m-%d")
     now_iso = now.isoformat()
 
-    # Création du snapshot
     snapshot = {
         "timestamp": now_iso,
         "date": now_date,
@@ -112,13 +163,14 @@ def compute_model_statistics_and_forecast(all_matched, config):
                 "avg": data["avg_price"],
                 "median": data["median_price"],
                 "count": data["count"],
-                "in_budget": data["in_budget_count"]
+                "in_budget": data["in_budget_count"],
+                "price_mai_2027": data["price_mai_2027"],
+                "mens_mai_2027_7k": data["mens_mai_2027_7k"]
             }
             for m_id, data in stats_by_model.items()
         }
     }
 
-    # Si déjà un snapshot pour aujourd'hui, on le met à jour
     snapshots = history_data.get("snapshots", [])
     if snapshots and snapshots[-1].get("date") == now_date:
         snapshots[-1] = snapshot
@@ -132,5 +184,6 @@ def compute_model_statistics_and_forecast(all_matched, config):
     return {
         "stats_by_model": stats_by_model,
         "budget_ceiling_vehicle": round(budget_max_vehicle, 2),
+        "forecast_labels": forecast_labels,
         "snapshots_history": snapshots
     }

@@ -1,71 +1,89 @@
 {
   "snapshots": [
     {
-      "timestamp": "2026-11-09T01:38:47.838943",
+      "timestamp": "2026-11-09T03:04:20.439719",
       "date": "2026-11-09",
       "models": {
         "skoda_enyaq_80": {
           "min": 25590,
-          "avg": 40933,
-          "median": 41990,
-          "count": 14,
-          "in_budget": 1
+          "avg": 39002,
+          "median": 38450,
+          "count": 17,
+          "in_budget": 2,
+          "price_mai_2027": 24006,
+          "mens_mai_2027_7k": 274.31
         },
         "mustang_mache_er": {
           "min": 27490,
           "avg": 32125,
           "median": 32490,
           "count": 11,
-          "in_budget": 0
+          "in_budget": 0,
+          "price_mai_2027": 25788,
+          "mens_mai_2027_7k": 302.48
         },
         "megane_etech_iconic": {
           "min": 18980,
-          "avg": 23039,
+          "avg": 23301,
           "median": 22999,
-          "count": 8,
-          "in_budget": 7
+          "count": 9,
+          "in_budget": 8,
+          "price_mai_2027": 17805,
+          "mens_mai_2027_7k": 176.31
         },
         "hyundai_ioniq_5": {
           "min": 24490,
           "avg": 47724,
           "median": 49420,
           "count": 15,
-          "in_budget": 1
+          "in_budget": 1,
+          "price_mai_2027": 22974,
+          "mens_mai_2027_7k": 258.0
         },
         "kia_ev6": {
           "min": 28590,
-          "avg": 40481,
-          "median": 39900,
-          "count": 16,
-          "in_budget": 0
+          "avg": 39014,
+          "median": 34990,
+          "count": 19,
+          "in_budget": 0,
+          "price_mai_2027": 26820,
+          "mens_mai_2027_7k": 318.79
         },
         "kia_niro_ev_premium": {
           "min": 24900,
           "avg": 36827,
           "median": 29900,
           "count": 19,
-          "in_budget": 1
+          "in_budget": 1,
+          "price_mai_2027": 23358,
+          "mens_mai_2027_7k": 264.07
         },
         "byd_seal_u_design": {
           "min": 34500,
           "avg": 34500,
           "median": 34500,
           "count": 1,
-          "in_budget": 0
+          "in_budget": 0,
+          "price_mai_2027": 32364,
+          "mens_mai_2027_7k": 406.41
         },
         "hyundai_kona_2_exec": {
           "min": 29990,
           "avg": 30990,
           "median": 31990,
           "count": 2,
-          "in_budget": 0
+          "in_budget": 0,
+          "price_mai_2027": 28133,
+          "mens_mai_2027_7k": 339.54
         },
         "peugeot_e3008_gt": {
           "min": 28990,
           "avg": 36212,
           "median": 36499,
           "count": 19,
-          "in_budget": 0
+          "in_budget": 0,
+          "price_mai_2027": 27195,
+          "mens_mai_2027_7k": 324.72
         }
       }
     }

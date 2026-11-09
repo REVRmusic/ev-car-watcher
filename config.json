@@ -8,7 +8,8 @@
     "mensualite_max": 300.0,
     "apport_min": 5000.0,
     "apport_max": 7000.0,
-    "cout_rapatriement_estime": 350.0
+    "cout_rapatriement_estime": 350.0,
+    "echeance_projet": "Mai 2027 (Restitution contrat LOA Peugeot e-2008)"
   },
   "criteria": {
     "max_km": 100000,
@@ -20,21 +21,29 @@
   "models": [
     {
       "id": "skoda_enyaq_80",
-      "name": "Skoda Enyaq iV 80",
+      "name": "Skoda Enyaq iV 80 (77 kWh)",
       "url": "https://www.autoscout24.fr/lst/skoda/enyaq?sort=price&desc=0&fuel=E&cy=F",
+      "spoticar_url": "https://www.spoticar.fr/voitures-occasion/skoda/enyaq",
+      "lacentrale_url": "https://www.lacentrale.fr/listing?energies=elec&makesModelsCommercialNames=SKODA%3AENYAQ",
       "target_trims": ["Loft", "Pack Confort", "Confort", "Sportline"],
       "target_battery_kwh": 77.0,
       "min_power_kw": 145,
       "min_year": 2021,
-      "keywords_must": ["80"],
+      "keywords_must": ["80", "85"],
       "keywords_exclude": ["iv 50", "iv 60", " 50 ", " 60 "],
       "priority": 1,
-      "notes": "Batterie 77 kWh utiles (150 kW / 204 Ch). Finition Loft (avec Pack Confort) ou Sportline."
+      "trunk_liters": 585,
+      "has_v2l": false,
+      "has_kw_display": true,
+      "has_pac": true,
+      "notes": "Batterie 77 kWh utiles (150 kW / 204 Ch). Immense coffre de 585 L à seuil plat, idéal matériel DJ/son. Affichage kW via MEB 3.2+."
     },
     {
       "id": "mustang_mache_er",
       "name": "Ford Mustang Mach-E (Extended Range)",
       "url": "https://www.autoscout24.fr/lst/ford/mustang-mach-e?sort=price&desc=0&fuel=E&cy=F",
+      "spoticar_url": "https://www.spoticar.fr/voitures-occasion/ford/mustang-mach-e",
+      "lacentrale_url": "https://www.lacentrale.fr/listing?energies=elec&makesModelsCommercialNames=FORD%3AMUSTANG%20MACH-E",
       "target_trims": ["Extended Range", "ER"],
       "target_battery_kwh": 88.0,
       "min_power_kw": 210,
@@ -42,12 +51,18 @@
       "keywords_must": ["extended", "er", "88", "91", "98", "294", "351"],
       "keywords_exclude": ["standard range", "sr", "70 kwh", "75 kwh", "269 ch"],
       "priority": 2,
-      "notes": "Batterie 88/91 kWh utiles (98 kWh brut). RWD 294 ch (216 kW) ou AWD 351 ch (258 kW)."
+      "trunk_liters": 502,
+      "has_v2l": false,
+      "has_kw_display": true,
+      "has_pac": false,
+      "notes": "Batterie 88/91 kWh utiles (98 kWh brut). Coffre 402 L + Frunk 100 L avec bonde de vidange pratique. RWD 294 ch ou AWD 351 ch."
     },
     {
       "id": "megane_etech_iconic",
       "name": "Renault Mégane E-Tech (Iconic - Optimum Charge)",
       "url": "https://www.autoscout24.fr/lst/renault/megane-e-tech?sort=price&desc=0&fuel=E&cy=F",
+      "spoticar_url": "https://www.spoticar.fr/voitures-occasion/renault/megane-e-tech",
+      "lacentrale_url": "https://www.lacentrale.fr/listing?energies=elec&makesModelsCommercialNames=RENAULT%3AMEGANE%20E-TECH",
       "target_trims": ["Iconic", "Optimum Charge"],
       "target_battery_kwh": 60.0,
       "min_power_kw": 155,
@@ -55,12 +70,18 @@
       "keywords_must": ["iconic", "optimum", "ev60", "220"],
       "keywords_exclude": ["ev40", "130 ch", "equilibre", "techno"],
       "priority": 1,
-      "notes": "Moteur EV60 220 ch (160 kW), finition haut de gamme Iconic, chargeur AC 22 kW (Optimum Charge)."
+      "trunk_liters": 440,
+      "has_v2l": false,
+      "has_kw_display": true,
+      "has_pac": true,
+      "notes": "Moteur EV60 220 ch (160 kW), finition Iconic, chargeur AC 22 kW Optimum Charge. Google Automotive avec kW en direct. Seuil de coffre haut."
     },
     {
       "id": "hyundai_ioniq_5",
       "name": "Hyundai Ioniq 5 (Executive ou Creative)",
       "url": "https://www.autoscout24.fr/lst/hyundai/ioniq-5?sort=price&desc=0&fuel=E&cy=F",
+      "spoticar_url": "https://www.spoticar.fr/voitures-occasion/hyundai/ioniq-5",
+      "lacentrale_url": "https://www.lacentrale.fr/listing?energies=elec&makesModelsCommercialNames=HYUNDAI%3AIONIQ%205",
       "target_trims": ["Executive", "Creative"],
       "target_battery_kwh": 73.0,
       "min_power_kw": 155,
@@ -68,12 +89,19 @@
       "keywords_must": ["creative", "executive", "73", "77", "218", "229"],
       "keywords_exclude": ["58 kwh", "170 ch", "intuitive"],
       "priority": 2,
-      "notes": "Batterie 73 ou 77 kWh (160 kW ou 168 kW). Finition Creative ou Executive."
+      "trunk_liters": 584,
+      "has_v2l": true,
+      "v2l_power": "3.6 kW",
+      "has_kw_display": true,
+      "has_pac": true,
+      "notes": "Architecture 800V (18 min 10-80%). V2L 3,6 kW pour alimenter sono/lumières DJ en extérieur. Banquette coulissante, coffre 527 L + 57 L frunk."
     },
     {
       "id": "kia_ev6",
       "name": "Kia EV6 Grande Autonomie (77,4 kWh)",
       "url": "https://www.autoscout24.fr/lst/kia/ev6?sort=price&desc=0&fuel=E&cy=F",
+      "spoticar_url": "https://www.spoticar.fr/voitures-occasion/kia/ev6",
+      "lacentrale_url": "https://www.lacentrale.fr/listing?energies=elec&makesModelsCommercialNames=KIA%3AEV6",
       "target_trims": ["Air Design", "GT-Line", "GT Line"],
       "target_battery_kwh": 77.4,
       "min_power_kw": 165,
@@ -81,12 +109,19 @@
       "keywords_must": ["77", "air design", "gt-line", "gt line", "229"],
       "keywords_exclude": ["58 kwh", "170 ch", "air active"],
       "priority": 2,
-      "notes": "Batterie 77,4 kWh (168 kW / 229 ch). Finitions Air Design ou GT-Line."
+      "trunk_liters": 542,
+      "has_v2l": true,
+      "v2l_power": "3.6 kW",
+      "has_kw_display": true,
+      "has_pac": true,
+      "notes": "Plateforme 800V ultrarapide, V2L 3,6 kW intégré. Coffre 490 L + 52 L frunk. Finitions Air Design ou GT-Line."
     },
     {
       "id": "kia_niro_ev_premium",
       "name": "Kia Niro EV 64,8 kWh (Premium)",
       "url": "https://www.autoscout24.fr/lst/kia/niro?sort=price&desc=0&fuel=E&cy=F",
+      "spoticar_url": "https://www.spoticar.fr/voitures-occasion/kia/niro",
+      "lacentrale_url": "https://www.lacentrale.fr/listing?energies=elec&makesModelsCommercialNames=KIA%3ANIRO",
       "target_trims": ["Premium"],
       "target_battery_kwh": 64.8,
       "min_power_kw": 145,
@@ -94,12 +129,19 @@
       "keywords_must": ["premium", "64", "204"],
       "keywords_exclude": ["motion", "active", "hybride", "phev"],
       "priority": 1,
-      "notes": "Niro EV 2e génération (mi-2022+) 64,8 kWh (150 kW / 204 ch) en finition Premium."
+      "trunk_liters": 495,
+      "has_v2l": true,
+      "v2l_power": "3.0 kW",
+      "has_kw_display": true,
+      "has_pac": true,
+      "notes": "Niro EV 2e génération (mi-2022+) 64,8 kWh (150 kW / 204 ch) en finition Premium. Prise V2L 3,0 kW sous la banquette, affichage kW direct, 7 ans de garantie."
     },
     {
       "id": "byd_seal_u_design",
       "name": "BYD Seal U EV (Design 87 kWh)",
       "url": "https://www.autoscout24.fr/lst/byd/seal-u?sort=price&desc=0&fuel=E&cy=F",
+      "spoticar_url": "https://www.spoticar.fr/voitures-occasion/byd/seal-u",
+      "lacentrale_url": "https://www.lacentrale.fr/listing?energies=elec&makesModelsCommercialNames=BYD%3ASEAL%20U",
       "target_trims": ["Design"],
       "target_battery_kwh": 87.0,
       "min_power_kw": 155,
@@ -107,12 +149,19 @@
       "keywords_must": ["design", "87"],
       "keywords_exclude": ["comfort", "dm-i", "hybride"],
       "priority": 3,
-      "notes": "100% électrique Blade 87 kWh (160 kW / 218 ch) en finition Design."
+      "trunk_liters": 552,
+      "has_v2l": true,
+      "v2l_power": "3.3 kW",
+      "has_kw_display": true,
+      "has_pac": true,
+      "notes": "100% électrique Blade 87 kWh (160 kW / 218 ch) en finition Design. Coffre 552 L à plancher plat, V2L 3,3 kW, écran rotatif 15.6\"."
     },
     {
       "id": "hyundai_kona_2_exec",
       "name": "Hyundai Kona 2 Grande Autonomie 65 kWh (Executive)",
       "url": "https://www.autoscout24.fr/lst/hyundai/kona?sort=price&desc=0&fuel=E&cy=F",
+      "spoticar_url": "https://www.spoticar.fr/voitures-occasion/hyundai/kona",
+      "lacentrale_url": "https://www.lacentrale.fr/listing?energies=elec&makesModelsCommercialNames=HYUNDAI%3AKONA",
       "target_trims": ["Executive"],
       "target_battery_kwh": 65.0,
       "min_power_kw": 155,
@@ -120,12 +169,19 @@
       "keywords_must": ["executive", "65", "218"],
       "keywords_exclude": ["39 kwh", "48 kwh", "136 ch", "156 ch", "intuitive"],
       "priority": 2,
-      "notes": "Kona 2e génération (fin 2023+) batterie 65 kWh (160 kW / 218 ch) en finition Executive."
+      "trunk_liters": 493,
+      "has_v2l": true,
+      "v2l_power": "3.0 kW",
+      "has_kw_display": true,
+      "has_pac": true,
+      "notes": "Kona 2e génération (fin 2023+) batterie 65 kWh (160 kW / 218 ch) en finition Executive avec PAC de série, coffre 466 L + 27 L frunk, V2L 3,0 kW."
     },
     {
       "id": "peugeot_e3008_gt",
       "name": "Peugeot e-3008 73 kWh (Finition GT)",
       "url": "https://www.autoscout24.fr/lst/peugeot/3008?sort=price&desc=0&fuel=E&cy=F",
+      "spoticar_url": "https://www.spoticar.fr/voitures-occasion/peugeot/3008",
+      "lacentrale_url": "https://www.lacentrale.fr/listing?energies=elec&makesModelsCommercialNames=PEUGEOT%3A3008",
       "target_trims": ["GT"],
       "target_battery_kwh": 73.0,
       "min_power_kw": 150,
@@ -133,7 +189,11 @@
       "keywords_must": ["gt", "73", "210"],
       "keywords_exclude": ["allure", "hybrid", "plug-in", "essence", "diesel"],
       "priority": 3,
-      "notes": "Nouvelle génération e-3008 (2024+) 73 kWh (157 kW / 210 ch) en finition GT."
+      "trunk_liters": 520,
+      "has_v2l": false,
+      "has_kw_display": true,
+      "has_pac": true,
+      "notes": "Nouvelle génération e-3008 (2024+) 73 kWh (157 kW / 210 ch) en finition GT avec écran panoramique 21\", coffre 520 L et PAC standard."
     }
   ]
 }

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-EV Market Watcher - Surveillance intelligente du marché des véhicules électriques d'occasion
-Auteur : Pair-programmation Antigravity
+EV Market Watcher - Surveillance intelligente multi-sources du marché des véhicules électriques d'occasion
+Sources : AutoScout24 & Autohero (avec liens pré-configurés Spoticar & La Centrale)
+Objectif : Remplacement LOA Peugeot e-2008 à échéance Mai 2027 (Budget max 300 €/m BoursoBank)
 """
 
 import json
@@ -13,6 +14,7 @@ import requests
 from bs4 import BeautifulSoup
 from generate_dashboard import build_html
 from trends_engine import compute_model_statistics_and_forecast
+from autohero_fetcher import fetch_autohero_listings
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
@@ -60,9 +62,9 @@ def parse_power(details):
         if item.get("ariaLabel") == "Puissance kW (CH)" or "kW" in str(item.get("data", "")):
             raw = str(item.get("data", ""))
             kw_match = re.search(r"(\d+)\s*kW", raw, re.IGNORECASE)
-            ch_match = re.search(r"(\d+)\s*Ch", raw, re.IGNORECASE)
+            ch_match = re.search(r"(\d+)\s*Ch|\b(\d+)\s*CV", raw, re.IGNORECASE)
             kw = int(kw_match.group(1)) if kw_match else None
-            ch = int(ch_match.group(1)) if ch_match else None
+            ch = int(ch_match.group(1) or ch_match.group(2)) if ch_match else None
             return kw, ch
     return None, None
 
@@ -86,8 +88,8 @@ def parse_year(details):
                 return int(year_match.group(1))
     return None
 
-def fetch_listings_for_model(model_conf):
-    """Récupère les annonces pour une configuration de modèle donnée."""
+def fetch_autoscout_listings(model_conf):
+    """Récupère les annonces AutoScout24 pour un modèle donné."""
     url = model_conf["url"]
     try:
         r = requests.get(url, headers=HEADERS, timeout=15)
@@ -101,9 +103,11 @@ def fetch_listings_for_model(model_conf):
             
         data = json.loads(script.string)
         listings = data.get("props", {}).get("pageProps", {}).get("listings", [])
+        for it in listings:
+            it["source"] = "AutoScout24"
         return listings
     except Exception as e:
-        print(f"Exception lors du fetch pour {model_conf['name']}: {e}")
+        print(f"Erreur AutoScout24 pour {model_conf['name']}: {e}")
         return []
 
 def evaluate_and_filter(raw_listings, model_conf, financial_conf, criteria_conf, history):
@@ -111,14 +115,21 @@ def evaluate_and_filter(raw_listings, model_conf, financial_conf, criteria_conf,
     matched = []
     now_str = datetime.now().isoformat()
     
-    annual_rate = financial_conf["taux_taeg_annuel"] # 0.01 (1.00%)
-    duration = financial_conf["duree_mois"] # 84
-    mens_max = financial_conf["mensualite_max"] # 300.0
-    apport_5k = financial_conf["apport_min"] # 5000.0
-    apport_7k = financial_conf["apport_max"] # 7000.0
+    annual_rate = financial_conf["taux_taeg_annuel"] # 4.35% BoursoBank
+    duration = financial_conf["duree_mois"] # 72 mois
+    mens_max = financial_conf["mensualite_max"] # 300.0 €
+    apport_5k = financial_conf["apport_min"] # 5000.0 €
+    apport_7k = financial_conf["apport_max"] # 7000.0 €
     repat_cost = financial_conf.get("cout_rapatriement_estime", 350.0)
 
     max_km = criteria_conf.get("max_km", 100000)
+
+    # Propriétés matériel / logistique du modèle (spécificités LM Music / Bastien)
+    trunk_liters = model_conf.get("trunk_liters")
+    has_v2l = model_conf.get("has_v2l", False)
+    v2l_power = model_conf.get("v2l_power", "")
+    has_kw_display = model_conf.get("has_kw_display", True)
+    has_pac = model_conf.get("has_pac", False)
 
     for item in raw_listings:
         ad_id = item.get("id")
@@ -137,6 +148,7 @@ def evaluate_and_filter(raw_listings, model_conf, financial_conf, criteria_conf,
         title = item.get("title") or ""
         subtitle = item.get("subtitle") or ""
         full_text = f"{title} {subtitle}".lower()
+        source = item.get("source", "AutoScout24")
         
         # 1. Règle stricte : élimination si kilométrage > 100 000 km
         if km and km > max_km:
@@ -152,7 +164,7 @@ def evaluate_and_filter(raw_listings, model_conf, financial_conf, criteria_conf,
         if min_power_kw and kw and kw < min_power_kw:
             continue
 
-        # 4. Mots-clés éliminatoires stricts
+        # 4. Mots-clés éliminatoires stricts (ex: thermiques, hybrides, petites batteries)
         exclude_words = model_conf.get("keywords_exclude", [])
         if any(w.lower() in full_text for w in exclude_words):
             continue
@@ -167,7 +179,7 @@ def evaluate_and_filter(raw_listings, model_conf, financial_conf, criteria_conf,
         is_ideal_km = bool(km and km <= 60000)
         is_sweet_spot = bool(is_recent and is_ideal_km)
 
-        # 7. Calculs financiers précis
+        # 7. Calculs financiers précis (BoursoBank 4,35 % sur 72 mois)
         total_price_key_in_hand = price_raw + repat_cost
         
         # Simulation avec apport 5 000 €
@@ -187,7 +199,7 @@ def evaluate_and_filter(raw_listings, model_conf, financial_conf, criteria_conf,
             budget_status = "WITHIN_BUDGET" # Rentrant avec 7k€ d'apport
             budget_badge = "Dans le budget (apport 7k€)"
             budget_class = "info"
-        elif mens_7k <= (mens_max + 25.0): # Dépasse de moins de 25€/mois (~2000€)
+        elif mens_7k <= (mens_max + 25.0): # Dépasse de moins de 25€/mois (~1600€)
             budget_status = "NEGOTIABLE"
             budget_badge = "Négociable (< +25€/m)"
             budget_class = "warning"
@@ -209,7 +221,7 @@ def evaluate_and_filter(raw_listings, model_conf, financial_conf, criteria_conf,
         else:
             score -= 2.0
 
-        # Règle d'or : Bonus très fort pour véhicules récents (2023 - 2025)
+        # Bonus véhicules récents (2023 - 2025)
         if year:
             if year >= 2024:
                 score += 2.0
@@ -218,24 +230,21 @@ def evaluate_and_filter(raw_listings, model_conf, financial_conf, criteria_conf,
             elif year == 2022:
                 score += 0.5
 
-        # Règle d'or : Bonus kilométrage idéal (idéal entre 50 000 et 60 000 km ou moins)
+        # Bonus kilométrage idéal (entre 35 000 et 60 000 km)
         if km:
             if 35000 <= km <= 60000:
-                score += 2.0 # Zone idéale visée
+                score += 2.0
             elif km < 35000:
-                score += 1.8 # Très faible kilométrage
+                score += 1.8
             elif 60000 < km <= 80000:
                 score += 0.6
-            elif 80000 < km <= 100000:
-                score += 0.0
 
         # Finition exacte détectée
         if detected_trims:
             score += 1.0
 
-        # Évaluation officielle plateforme
-        price_eval = item.get("price", {}).get("priceEvaluation")
-        if price_eval in [1, "SUPER_DEAL", "VERY_GOOD"]:
+        # Bonus garantie Autohero ou bonne affaire
+        if item.get("has_warranty"):
             score += 0.5
 
         score = max(1.0, min(10.0, round(score, 1)))
@@ -261,11 +270,20 @@ def evaluate_and_filter(raw_listings, model_conf, financial_conf, criteria_conf,
 
         # Localisation & vendeur
         loc = item.get("location", {})
-        city = loc.get("city", "France")
-        zip_code = loc.get("zip", "")
+        if isinstance(loc, dict):
+            city = loc.get("city", "France")
+            zip_code = loc.get("zip", "")
+        else:
+            city = str(loc) if loc else "France"
+            zip_code = ""
+
         seller = item.get("seller", {})
-        seller_name = seller.get("name", "Concessionnaire / Pro")
-        seller_type = "Pro" if seller.get("type") != "PRIVATE" else "Particulier"
+        if isinstance(seller, dict):
+            seller_name = seller.get("name", "Pro")
+            seller_type = "Pro" if seller.get("type") != "PRIVATE" else "Particulier"
+        else:
+            seller_name = "Autohero France" if source == "Autohero" else "Pro"
+            seller_type = "Pro"
 
         # Image principale
         images = item.get("images", [])
@@ -273,10 +291,16 @@ def evaluate_and_filter(raw_listings, model_conf, financial_conf, criteria_conf,
 
         # Lien complet
         rel_url = item.get("url", "")
-        ad_url = f"https://www.autoscout24.fr{rel_url}" if rel_url.startswith("/") else rel_url
+        if rel_url.startswith("/fr/") and "autohero.com" not in rel_url and "autoscout24.fr" not in rel_url:
+            ad_url = f"https://www.autohero.com{rel_url}" if source == "Autohero" else f"https://www.autoscout24.fr{rel_url}"
+        elif rel_url.startswith("/"):
+            ad_url = f"https://www.autoscout24.fr{rel_url}"
+        else:
+            ad_url = rel_url
 
         matched.append({
             "id": ad_id,
+            "source": source,
             "model_id": model_conf["id"],
             "model_name": model_conf["name"],
             "title": title,
@@ -294,10 +318,17 @@ def evaluate_and_filter(raw_listings, model_conf, financial_conf, criteria_conf,
             "is_recent": is_recent,
             "is_ideal_km": is_ideal_km,
             "is_sweet_spot": is_sweet_spot,
+            "trunk_liters": trunk_liters,
+            "has_v2l": has_v2l,
+            "v2l_power": v2l_power,
+            "has_kw_display": has_kw_display,
+            "has_pac": has_pac,
             "city": city,
             "zip": zip_code,
             "seller_name": seller_name,
             "seller_type": seller_type,
+            "has_warranty": item.get("has_warranty", False),
+            "warranty_text": item.get("warranty_text", ""),
             "img_url": img_url,
             "ad_url": ad_url,
             "score": score,
@@ -316,22 +347,55 @@ def run_watcher():
     history = load_history()
     all_matched = []
 
-    print("=== Démarrage de la veille véhicules électriques ===")
+    print("=== Démarrage de la veille véhicules électriques multi-sources ===")
     print(f"Modèles surveillés : {len(config['models'])}")
 
+    # 1. Scraping AutoScout24 par modèle
+    print("\n--- 1. Extraction AutoScout24 ---")
     for model_conf in config["models"]:
-        raw_listings = fetch_listings_for_model(model_conf)
+        raw_listings = fetch_autoscout_listings(model_conf)
         matched = evaluate_and_filter(raw_listings, model_conf, config["financial"], config.get("criteria", {}), history)
-        print(f"   -> Retenu pour {model_conf['name']} : {len(matched)} annonces qualifiées")
+        print(f"   -> [AutoScout24] Retenu pour {model_conf['name']} : {len(matched)} annonces qualifiées")
         all_matched.extend(matched)
-        time.sleep(0.5)
+        time.sleep(0.4)
+
+    # 2. Scraping Autohero (véhicules reconditionnés avec garantie 1 an)
+    print("\n--- 2. Extraction Autohero ---")
+    try:
+        autohero_raw = fetch_autohero_listings()
+        print(f"   -> [Autohero] {len(autohero_raw)} annonces électriques brutes récupérées")
+        
+        # Dispatch par modèle configuré
+        for auto_item in autohero_raw:
+            hint_id = auto_item.get("model_id_hint")
+            matching_conf = next((m for m in config["models"] if m["id"] == hint_id), None)
+            if not matching_conf:
+                # Recherche par titre
+                title_lower = auto_item.get("title", "").lower()
+                for m in config["models"]:
+                    if any(k.lower() in title_lower for k in m.get("keywords_must", [])):
+                        matching_conf = m
+                        break
+            
+            if matching_conf:
+                matched_auto = evaluate_and_filter([auto_item], matching_conf, config["financial"], config.get("criteria", {}), history)
+                if matched_auto:
+                    print(f"   -> [Autohero] Annonce qualifiée : {matched_auto[0]['title']} ({matched_auto[0]['price_raw']} €)")
+                    all_matched.extend(matched_auto)
+    except Exception as e:
+        print(f"   -> Note Autohero : {e}")
+
+    # 3. Traçabilité Spoticar & La Centrale
+    print("\n--- 3. Statut Spoticar & La Centrale ---")
+    print("   -> Spoticar & La Centrale sont protégés par pare-feu anti-bot (Akamai Edge / DataDome).")
+    print("   -> Des liens directs de recherche pré-paramétrés sont intégrés au dashboard pour un accès immédiat.")
 
     save_history(history)
 
     # Tri global de toutes les annonces : meilleures notes et mensualité la plus basse en premier
     all_matched.sort(key=lambda x: (-x["score"], x["mens_7k"]))
 
-    # Calcul des statistiques de marché et de la courbe prévisionnelle de décote
+    # Calcul des statistiques de marché et de la courbe prévisionnelle arrêtée en Mai 2027
     trends_data = compute_model_statistics_and_forecast(all_matched, config)
 
     # Sauvegarde des résultats
