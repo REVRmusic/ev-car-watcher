@@ -1,0 +1,73 @@
+{
+  "snapshots": [
+    {
+      "timestamp": "2026-11-09T02:19:55.135981",
+      "date": "2026-11-09",
+      "models": {
+        "skoda_enyaq_80": {
+          "min": 25590,
+          "avg": 40933,
+          "median": 41990,
+          "count": 14,
+          "in_budget": 1
+        },
+        "mustang_mache_er": {
+          "min": 27490,
+          "avg": 32125,
+          "median": 32490,
+          "count": 11,
+          "in_budget": 0
+        },
+        "megane_etech_iconic": {
+          "min": 18980,
+          "avg": 23039,
+          "median": 22999,
+          "count": 8,
+          "in_budget": 7
+        },
+        "hyundai_ioniq_5": {
+          "min": 24490,
+          "avg": 47724,
+          "median": 49420,
+          "count": 15,
+          "in_budget": 1
+        },
+        "kia_ev6": {
+          "min": 28590,
+          "avg": 40481,
+          "median": 39900,
+          "count": 16,
+          "in_budget": 0
+        },
+        "kia_niro_ev_premium": {
+          "min": 24900,
+          "avg": 36827,
+          "median": 29900,
+          "count": 19,
+          "in_budget": 1
+        },
+        "byd_seal_u_design": {
+          "min": 34500,
+          "avg": 34500,
+          "median": 34500,
+          "count": 1,
+          "in_budget": 0
+        },
+        "hyundai_kona_2_exec": {
+          "min": 29990,
+          "avg": 30990,
+          "median": 31990,
+          "count": 2,
+          "in_budget": 0
+        },
+        "peugeot_e3008_gt": {
+          "min": 28990,
+          "avg": 36212,
+          "median": 36499,
+          "count": 19,
+          "in_budget": 0
+        }
+      }
+    }
+  ]
+}

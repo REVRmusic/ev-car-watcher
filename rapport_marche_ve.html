@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Observatoire & Veille Véhicules Électriques — Décote & Prévisions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #111827;
+      --bg-card: #161f30;
+      --bg-card-hover: #1c273c;
+      --border-color: #243046;
+      --border-highlight: #3b82f6;
+      --text-primary: #f3f4f6;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --accent-blue: #3b82f6;
+      --accent-blue-soft: rgba(59, 130, 246, 0.15);
+      --accent-emerald: #10b981;
+      --accent-emerald-soft: rgba(16, 185, 129, 0.15);
+      --accent-cyan: #06b6d4;
+      --accent-cyan-soft: rgba(6, 182, 212, 0.15);
+      --accent-amber: #f59e0b;
+      --accent-amber-soft: rgba(245, 158, 11, 0.15);
+      --accent-rose: #ef4444;
+      --accent-rose-soft: rgba(239, 68, 68, 0.15);
+      --accent-purple: #8b5cf6;
+      --accent-purple-soft: rgba(139, 92, 246, 0.15);
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 2rem 1.5rem 5rem;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* HEADER */
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 2rem;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .title-group h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .title-group p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      margin-top: 0.35rem;
+    }
+
+    .meta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-secondary);
+    }
+
+    .meta-badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--accent-emerald);
+      box-shadow: 0 0 10px var(--accent-emerald);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+
+    /* BANDEAU SIMULATION FINANCIÈRE */
+    .financial-banner {
+      background: linear-gradient(135deg, rgba(30, 58, 138, 0.25) 0%, rgba(17, 24, 39, 0.6) 100%);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 1rem;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem;
+    }
+
+    .financial-details {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .fin-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .fin-item span:first-child {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .fin-item span:last-child {
+      font-size: 1.05rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      color: #93c5fd;
+    }
+
+    /* STATS / KPI GRID */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .kpi-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(59, 130, 246, 0.4);
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-blue), transparent);
+    }
+
+    .kpi-card.cyan::before { background: linear-gradient(90deg, var(--accent-cyan), transparent); }
+    .kpi-card.emerald::before { background: linear-gradient(90deg, var(--accent-emerald), transparent); }
+    .kpi-card.amber::before { background: linear-gradient(90deg, var(--accent-amber), transparent); }
+
+    .kpi-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .kpi-value {
+      font-size: 1.85rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-primary);
+    }
+
+    .kpi-subtext {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    /* SECTION OBSERVATOIRE DÉCOTE */
+    .observatory-section {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 1.25rem;
+      padding: 1.75rem;
+      margin-bottom: 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .section-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 0.2rem;
+    }
+
+    /* TABLEAU DES FOURCHETTES */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-card);
+    }
+
+    table.trends-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.875rem;
+    }
+
+    table.trends-table th {
+      background-color: rgba(15, 23, 42, 0.75);
+      padding: 0.85rem 1rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    table.trends-table td {
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+    }
+
+    table.trends-table tr:hover td {
+      background-color: rgba(59, 130, 246, 0.04);
+    }
+
+    .cell-model {
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .cell-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .tag-horizon {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .tag-horizon.success {
+      background-color: var(--accent-emerald-soft);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .tag-horizon.warning {
+      background-color: var(--accent-amber-soft);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .tag-horizon.info {
+      background-color: var(--accent-blue-soft);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .tag-horizon.secondary {
+      background-color: rgba(156, 163, 175, 0.1);
+      color: #9ca3af;
+      border: 1px solid rgba(156, 163, 175, 0.2);
+    }
+
+    /* GRAPHIQUES GRID */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1024px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .chart-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chart-legend-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .chart-canvas-wrap {
+      position: relative;
+      height: 340px;
+      width: 100%;
+    }
+
+    /* CONTROLS & FILTERS */
+    .controls-panel {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      margin-bottom: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .filter-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-right: 0.5rem;
+    }
+
+    .filter-btn {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 0.45rem 0.9rem;
+      border-radius: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .filter-btn:hover {
+      background-color: var(--bg-card-hover);
+      color: var(--text-primary);
+      border-color: var(--border-highlight);
+    }
+
+    .filter-btn.active {
+      background-color: var(--accent-blue);
+      color: #ffffff;
+      border-color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    .filter-btn.sweet-btn.active {
+      background-color: var(--accent-cyan);
+      border-color: var(--accent-cyan);
+    }
+
+    /* GRID OF CARS */
+    .cars-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .car-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    .car-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: rgba(59, 130, 246, 0.4);
+    }
+
+    .car-card.sweet-card {
+      border-color: rgba(6, 182, 212, 0.4);
+    }
+
+    .car-card.sweet-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-emerald));
+      z-index: 2;
+    }
+
+    .card-image-wrap {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      background-color: #0f172a;
+      overflow: hidden;
+    }
+
+    .card-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .car-card:hover .card-image {
+      transform: scale(1.05);
+    }
+
+    .image-overlay-badges {
+      position: absolute;
+      top: 0.75rem;
+      left: 0.75rem;
+      right: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.3rem 0.65rem;
+      border-radius: 0.4rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      backdrop-filter: blur(8px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .badge-success {
+      background-color: rgba(16, 185, 129, 0.85);
+      color: #ffffff;
+      border: 1px solid #10b981;
+    }
+
+    .badge-info {
+      background-color: rgba(59, 130, 246, 0.85);
+      color: #ffffff;
+      border: 1px solid #3b82f6;
+    }
+
+    .badge-warning {
+      background-color: rgba(245, 158, 11, 0.85);
+      color: #ffffff;
+      border: 1px solid #f59e0b;
+    }
+
+    .badge-danger {
+      background-color: rgba(239, 68, 68, 0.85);
+      color: #ffffff;
+      border: 1px solid #ef4444;
+    }
+
+    .score-badge {
+      background-color: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #f8fafc;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .card-body {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 1rem;
+    }
+
+    .car-header {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .car-model-name {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-blue);
+    }
+
+    .car-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* FINANCIAL HIGHLIGHT BOX */
+    .fin-box {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 0.9rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .fin-box-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .fin-box-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .fin-box-val {
+      font-size: 1.15rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .fin-box-val.target-ok {
+      color: var(--accent-emerald);
+    }
+
+    .fin-box-val.target-mid {
+      color: #60a5fa;
+    }
+
+    .fin-box-val.target-warn {
+      color: var(--accent-amber);
+    }
+
+    .price-tag {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px dashed var(--border-color);
+    }
+
+    .price-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      color: #ffffff;
+    }
+
+    .price-sub {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    /* DETAILS CHIPS */
+    .chips-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .chip {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      padding: 0.25rem 0.55rem;
+      border-radius: 0.4rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .card-footer {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .location-info {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .btn-view {
+      background-color: var(--accent-blue);
+      color: #ffffff;
+      padding: 0.55rem 1rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn-view:hover {
+      background-color: #2563eb;
+      transform: translateY(-1px);
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      background-color: var(--bg-card);
+      border: 1px dashed var(--border-color);
+      border-radius: 1rem;
+      padding: 4rem 2rem;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- HEADER -->
+    <header>
+      <div class="header-top">
+        <div class="title-group">
+          <h1>⚡ Surveillance Marché Véhicules Électriques</h1>
+          <p>Observatoire des prix, courbes prévisionnelles de décote & alertes d'opportunités</p>
+        </div>
+        <div class="meta-badge">
+          <span class="dot"></span>
+          <span>Dernière analyse : 09/11/2026 à 02:19</span>
+        </div>
+      </div>
+
+      <!-- BANDEAU SIMULATION FINANCIÈRE BOURSOBANK -->
+      <div class="financial-banner">
+        <div class="financial-details">
+          <div class="fin-item">
+            <span>Barème Financement</span>
+            <span>BoursoBank Véhicule Propre (4,35 % TAEG fixe)</span>
+          </div>
+          <div class="fin-item">
+            <span>Durée</span>
+            <span>72 mois (6 ans)</span>
+          </div>
+          <div class="fin-item">
+            <span>Mensualité Cible</span>
+            <span>≤ 300 € / mois</span>
+          </div>
+          <div class="fin-item">
+            <span>Apport Net</span>
+            <span>5 000 € à 7 000 €</span>
+          </div>
+          <div class="fin-item">
+            <span>Plafond Véhicule Net</span>
+            <span style="color:#34d399">~25,631 €</span>
+          </div>
+          <div class="fin-item">
+            <span>Règle Année & Km</span>
+            <span style="color:#67e8f9">2023-2025 | ≤ 100k km (Idéal 50k-60k km)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI METRICS -->
+      <div class="kpi-grid">
+        <div class="kpi-card emerald">
+          <span class="kpi-label">Dans le budget (≤ 300€/m)</span>
+          <span class="kpi-value">10</span>
+          <span class="kpi-subtext">Directement finançables</span>
+        </div>
+        <div class="kpi-card cyan">
+          <span class="kpi-label">🎯 Cibles Idéales (2023+ & ≤ 60k km)</span>
+          <span class="kpi-value">0</span>
+          <span class="kpi-subtext">Dans le budget & critères parfaits</span>
+        </div>
+        <div class="kpi-card amber">
+          <span class="kpi-label">Opportunités à négocier</span>
+          <span class="kpi-value">2</span>
+          <span class="kpi-subtext">Dépassement &lt; 25 €/mois</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-label">Total annonces qualifiées</span>
+          <span class="kpi-value">105</span>
+          <span class="kpi-subtext">Exclusion stricte &gt; 100k km</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- OBSERVATOIRE DES PRIX & COURBES DE DÉCOTE -->
+    <section class="observatory-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">📊 Observatoire de Marché & Prévision de Décote</h2>
+          <p class="section-subtitle">Suivi des fourchettes de prix en temps réel et projections mathématiques vers votre budget cible (25,631 € net)</p>
+        </div>
+      </div>
+
+      <!-- TABLEAU DES FOURCHETTES PAR MODÈLE -->
+      <div class="table-container">
+        <table class="trends-table">
+          <thead>
+            <tr>
+              <th>Modèle surveillé</th>
+              <th>Annonces</th>
+              <th>Prix Min</th>
+              <th>Prix Médian</th>
+              <th>Prix Max</th>
+              <th>Mensualité Min (Apport 7k€)</th>
+              <th>Horizon Budget BoursoBank</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td class="cell-model">Skoda Enyaq iV 80</td>
+              <td class="cell-mono">14</td>
+              <td class="cell-mono" style="color:#34d399; font-weight:700;">25 590 €</td>
+              <td class="cell-mono">41 990 €</td>
+              <td class="cell-mono" style="color:#94a3b8;">54 990 €</td>
+              <td class="cell-mono" style="font-weight:700; color:#93c5fd;">299.35 €/m</td>
+              <td><span class="tag-horizon success">Immédiat (Déjà dans le budget)</span></td>
+            </tr>
+        
+            <tr>
+              <td class="cell-model">Ford Mustang Mach-E (Extended Range)</td>
+              <td class="cell-mono">11</td>
+              <td class="cell-mono" style="color:#34d399; font-weight:700;">27 490 €</td>
+              <td class="cell-mono">32 490 €</td>
+              <td class="cell-mono" style="color:#94a3b8;">36 990 €</td>
+              <td class="cell-mono" style="font-weight:700; color:#93c5fd;">329.38 €/m</td>
+              <td><span class="tag-horizon info">D'ici ~7 mois (Moyen terme)</span></td>
+            </tr>
+        
+            <tr>
+              <td class="cell-model">Renault Mégane E-Tech (Iconic - Optimum Charge)</td>
+              <td class="cell-mono">8</td>
+              <td class="cell-mono" style="color:#34d399; font-weight:700;">18 980 €</td>
+              <td class="cell-mono">22 999 €</td>
+              <td class="cell-mono" style="color:#94a3b8;">26 190 €</td>
+              <td class="cell-mono" style="font-weight:700; color:#93c5fd;">194.88 €/m</td>
+              <td><span class="tag-horizon success">Immédiat (Déjà dans le budget)</span></td>
+            </tr>
+        
+            <tr>
+              <td class="cell-model">Hyundai Ioniq 5 (Executive ou Creative)</td>
+              <td class="cell-mono">15</td>
+              <td class="cell-mono" style="color:#34d399; font-weight:700;">24 490 €</td>
+              <td class="cell-mono">49 420 €</td>
+              <td class="cell-mono" style="color:#94a3b8;">75 589 €</td>
+              <td class="cell-mono" style="font-weight:700; color:#93c5fd;">281.96 €/m</td>
+              <td><span class="tag-horizon success">Immédiat (Déjà dans le budget)</span></td>
+            </tr>
+        
+            <tr>
+              <td class="cell-model">Kia EV6 Grande Autonomie (77,4 kWh)</td>
+              <td class="cell-mono">16</td>
+              <td class="cell-mono" style="color:#34d399; font-weight:700;">28 590 €</td>
+              <td class="cell-mono">39 900 €</td>
+              <td class="cell-mono" style="color:#94a3b8;">59 890 €</td>
+              <td class="cell-mono" style="font-weight:700; color:#93c5fd;">346.77 €/m</td>
+              <td><span class="tag-horizon info">D'ici ~11 mois (Moyen terme)</span></td>
+            </tr>
+        
+            <tr>
+              <td class="cell-model">Kia Niro EV 64,8 kWh (Premium)</td>
+              <td class="cell-mono">19</td>
+              <td class="cell-mono" style="color:#34d399; font-weight:700;">24 900 €</td>
+              <td class="cell-mono">29 900 €</td>
+              <td class="cell-mono" style="color:#94a3b8;">54 100 €</td>
+              <td class="cell-mono" style="font-weight:700; color:#93c5fd;">288.44 €/m</td>
+              <td><span class="tag-horizon success">Immédiat (Déjà dans le budget)</span></td>
+            </tr>
+        
+            <tr>
+              <td class="cell-model">BYD Seal U EV (Design 87 kWh)</td>
+              <td class="cell-mono">1</td>
+              <td class="cell-mono" style="color:#34d399; font-weight:700;">34 500 €</td>
+              <td class="cell-mono">34 500 €</td>
+              <td class="cell-mono" style="color:#94a3b8;">34 500 €</td>
+              <td class="cell-mono" style="font-weight:700; color:#93c5fd;">440.17 €/m</td>
+              <td><span class="tag-horizon secondary">D'ici ~28 mois</span></td>
+            </tr>
+        
+            <tr>
+              <td class="cell-model">Hyundai Kona 2 Grande Autonomie 65 kWh (Executive)</td>
+              <td class="cell-mono">2</td>
+              <td class="cell-mono" style="color:#34d399; font-weight:700;">29 990 €</td>
+              <td class="cell-mono">31 990 €</td>
+              <td class="cell-mono" style="color:#94a3b8;">31 990 €</td>
+              <td class="cell-mono" style="font-weight:700; color:#93c5fd;">368.89 €/m</td>
+              <td><span class="tag-horizon secondary">D'ici ~15 mois</span></td>
+            </tr>
+        
+            <tr>
+              <td class="cell-model">Peugeot e-3008 73 kWh (Finition GT)</td>
+              <td class="cell-mono">19</td>
+              <td class="cell-mono" style="color:#34d399; font-weight:700;">28 990 €</td>
+              <td class="cell-mono">36 499 €</td>
+              <td class="cell-mono" style="color:#94a3b8;">40 923 €</td>
+              <td class="cell-mono" style="font-weight:700; color:#93c5fd;">353.09 €/m</td>
+              <td><span class="tag-horizon info">D'ici ~12 mois (Moyen terme)</span></td>
+            </tr>
+        
+          </tbody>
+        </table>
+      </div>
+
+      <!-- GRAPHIQUES INTERACTIFS -->
+      <div class="charts-grid">
+        <!-- COURBE PRÉVISIONNELLE -->
+        <div class="chart-card">
+          <div class="chart-title">
+            <span>📈 Courbes Prévisionnelles de Décote (Projection 24 Mois)</span>
+            <span class="chart-legend-hint">Cliquez sur un modèle pour filtrer</span>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="depreciationChart"></canvas>
+          </div>
+        </div>
+
+        <!-- POSITIONNEMENT ACTUEL PAR MODÈLE -->
+        <div class="chart-card">
+          <div class="chart-title">
+            <span>⚖️ Prix Minimum Actuel vs Plafond Budget</span>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="budgetComparisonChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FILTRES INTERACTIFS -->
+    <div class="controls-panel">
+      <div class="filter-row">
+        <span class="filter-label">Filtres :</span>
+        <button class="filter-btn active" data-filter-type="budget" data-val="all">Tous les résultats</button>
+        <button class="filter-btn sweet-btn" data-filter-type="budget" data-val="sweet_spot" style="color:#22d3ee; border-color:rgba(6,182,212,0.4)">🎯 Cible Idéale (2023+ & ≤ 60k km)</button>
+        <button class="filter-btn" data-filter-type="budget" data-val="budget_ok">Dans le budget (≤ 300€/m)</button>
+        <button class="filter-btn" data-filter-type="budget" data-val="pepite">Top Pépites (Score ≥ 8.0)</button>
+        <button class="filter-btn" data-filter-type="budget" data-val="negotiable">À négocier</button>
+      </div>
+
+      <div class="filter-row" style="margin-top: 0.5rem;">
+        <span class="filter-label">Modèle :</span>
+        <button class="filter-btn active" data-filter-type="model" data-val="all">Tous (105)</button>
+        <button class="filter-btn" data-filter-type="model" data-val="megane_etech_iconic">Mégane E-Tech</button>
+        <button class="filter-btn" data-filter-type="model" data-val="skoda_enyaq_80">Skoda Enyaq 80</button>
+        <button class="filter-btn" data-filter-type="model" data-val="hyundai_ioniq_5">Ioniq 5</button>
+        <button class="filter-btn" data-filter-type="model" data-val="kia_ev6">Kia EV6</button>
+        <button class="filter-btn" data-filter-type="model" data-val="kia_niro_ev_premium">Kia Niro EV</button>
+        <button class="filter-btn" data-filter-type="model" data-val="mustang_mache_er">Mustang Mach-E</button>
+        <button class="filter-btn" data-filter-type="model" data-val="hyundai_kona_2_exec">Kona 2 Executive</button>
+        <button class="filter-btn" data-filter-type="model" data-val="peugeot_e3008_gt">Peugeot e-3008 GT</button>
+        <button class="filter-btn" data-filter-type="model" data-val="byd_seal_u_design">BYD Seal U</button>
+      </div>
+    </div>
+
+    <!-- GRILLE DES VÉHICULES -->
+    <div class="cars-grid" id="cars-grid">
+      <!-- Les cartes seront injectées dynamiquement par JS -->
+    </div>
+
+  </div>
+
+  <script>
+    const listingsData = [{"id": "1e692721-2bbe-43b3-8856-d53ceb0d0c90", "model_id": "megane_etech_iconic", "model_name": "Renault Mégane E-Tech (Iconic - Optimum Charge)", "title": "Renault Megane E-Tech", "price_raw": 18980, "repat_cost": 350.0, "total_price_key_in_hand": 19330.0, "mens_5k": 226.49, "mens_7k": 194.88, "km": 46000, "year": 2022, "power_kw": null, "power_ch": null, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": true, "is_sweet_spot": false, "city": "Téteghem-Coudekerque-Village", "zip": "59229", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/1e692721-2bbe-43b3-8856-d53ceb0d0c90_0ddd4d72-00ee-4c3f-9c9e-e1038c7c7a2f.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/renault-megane-e-tech-megane-e-tech-ev40-130ch-standard-charge-equilibre-electrique-blanc-cat_ma60mo76249-1e692721-2bbe-43b3-8856-d53ceb0d0c90", "score": 9.0, "budget_status": "EXCELLENT_DEAL", "budget_badge": "Dans le budget (apport 5k€)", "budget_class": "success", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:49.113705"}, {"id": "0dc0a5b3-6bc9-423b-be84-7cf5e921dedc", "model_id": "megane_etech_iconic", "model_name": "Renault Mégane E-Tech (Iconic - Optimum Charge)", "title": "Renault Megane E-Tech", "price_raw": 21790, "repat_cost": 350.0, "total_price_key_in_hand": 22140.0, "mens_5k": 270.9, "mens_7k": 239.29, "km": 49827, "year": 2022, "power_kw": 160, "power_ch": 218, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": true, "is_sweet_spot": false, "city": "Issy-les-Moulineaux", "zip": "92130", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/0dc0a5b3-6bc9-423b-be84-7cf5e921dedc_c4bad4a5-5c66-4fce-9dea-66cd96984ab0.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/renault-megane-e-tech-e-tech-ev60-super-charge-equilibre-electrique-blanc-cat_ma60mo76249-0dc0a5b3-6bc9-423b-be84-7cf5e921dedc", "score": 9.0, "budget_status": "EXCELLENT_DEAL", "budget_badge": "Dans le budget (apport 5k€)", "budget_class": "success", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:49.113705"}, {"id": "45fa16b3-c80b-4895-891f-c3fe486ae2cd", "model_id": "megane_etech_iconic", "model_name": "Renault Mégane E-Tech (Iconic - Optimum Charge)", "title": "Renault Megane E-Tech", "price_raw": 22999, "repat_cost": 350.0, "total_price_key_in_hand": 23349.0, "mens_5k": 290.01, "mens_7k": 258.4, "km": 57899, "year": 2022, "power_kw": 163, "power_ch": 222, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": true, "is_sweet_spot": false, "city": "Besancon", "zip": "25000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/45fa16b3-c80b-4895-891f-c3fe486ae2cd_94989f5f-443e-416b-b200-4a8b51e19d1e.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/renault-megane-e-tech-e-tech-ev40-130ch-standard-charge-equilibre-electrique-blanc-cat_ma60mo76249-45fa16b3-c80b-4895-891f-c3fe486ae2cd", "score": 9.0, "budget_status": "EXCELLENT_DEAL", "budget_badge": "Dans le budget (apport 5k€)", "budget_class": "success", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:49.113705"}, {"id": "f9ff7dde-8283-4241-bfad-1c56cfbd617a", "model_id": "kia_niro_ev_premium", "model_name": "Kia Niro EV 64,8 kWh (Premium)", "title": "Kia Niro", "price_raw": 24900, "repat_cost": 350.0, "total_price_key_in_hand": 25250.0, "mens_5k": 320.05, "mens_7k": 288.44, "km": 58277, "year": 2022, "power_kw": 152, "power_ch": 207, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": true, "is_sweet_spot": false, "city": "LA RAVOIRE", "zip": "73490", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/kia-niro-ev-204ch-active-electrique-blanc-cat_ma39mo74327-f9ff7dde-8283-4241-bfad-1c56cfbd617a", "score": 8.0, "budget_status": "WITHIN_BUDGET", "budget_badge": "Dans le budget (apport 7k€)", "budget_class": "info", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.890873"}, {"id": "8fd28b7c-d4a2-4c62-ba8e-835a66a0f8fd", "model_id": "megane_etech_iconic", "model_name": "Renault Mégane E-Tech (Iconic - Optimum Charge)", "title": "Renault Megane E-Tech", "price_raw": 26190, "repat_cost": 350.0, "total_price_key_in_hand": 26540.0, "mens_5k": 340.44, "mens_7k": 308.83, "km": 12803, "year": 2023, "power_kw": 160, "power_ch": 218, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Issy-les-Moulineaux", "zip": "92130", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/8fd28b7c-d4a2-4c62-ba8e-835a66a0f8fd_ac54a117-9c88-477e-a049-a5fa6ee9d7dd.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/renault-megane-e-tech-e-tech-ev60-super-charge-techno-electrique-blanc-cat_ma60mo76249-8fd28b7c-d4a2-4c62-ba8e-835a66a0f8fd", "score": 7.8, "budget_status": "NEGOTIABLE", "budget_badge": "Négociable (< +25€/m)", "budget_class": "warning", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:49.113705"}, {"id": "54b2412c-a0e6-47fe-84c1-551a457de9c7", "model_id": "megane_etech_iconic", "model_name": "Renault Mégane E-Tech (Iconic - Optimum Charge)", "title": "Renault Megane E-Tech", "price_raw": 22290, "repat_cost": 350.0, "total_price_key_in_hand": 22640.0, "mens_5k": 278.8, "mens_7k": 247.19, "km": 79891, "year": 2022, "power_kw": 160, "power_ch": 218, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": false, "is_sweet_spot": false, "city": "Issy-les-Moulineaux", "zip": "92130", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/54b2412c-a0e6-47fe-84c1-551a457de9c7_0cd57af4-feac-427b-ae4b-68c91e9415f3.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/renault-megane-e-tech-e-tech-ev60-optimum-charge-techno-electrique-bleu-cat_ma60mo76249-54b2412c-a0e6-47fe-84c1-551a457de9c7", "score": 7.6, "budget_status": "EXCELLENT_DEAL", "budget_badge": "Dans le budget (apport 5k€)", "budget_class": "success", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:49.113705"}, {"id": "60033328-594f-45ff-8458-3ef921c780f2", "model_id": "megane_etech_iconic", "model_name": "Renault Mégane E-Tech (Iconic - Optimum Charge)", "title": "Renault Megane E-Tech", "price_raw": 21790, "repat_cost": 350.0, "total_price_key_in_hand": 22140.0, "mens_5k": 270.9, "mens_7k": 239.29, "km": 87248, "year": 2022, "power_kw": 160, "power_ch": 218, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": false, "is_sweet_spot": false, "city": "Issy-les-Moulineaux", "zip": "92130", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/60033328-594f-45ff-8458-3ef921c780f2_c0dff912-3ae1-4f1a-9ddf-1e366f71fad2.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/renault-megane-e-tech-e-tech-ev60-super-charge-techno-electrique-rouge-cat_ma60mo76249-60033328-594f-45ff-8458-3ef921c780f2", "score": 7.0, "budget_status": "EXCELLENT_DEAL", "budget_badge": "Dans le budget (apport 5k€)", "budget_class": "success", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:49.113705"}, {"id": "95dbbe33-b899-4a91-a00b-a23b5795487c", "model_id": "kia_niro_ev_premium", "model_name": "Kia Niro EV 64,8 kWh (Premium)", "title": "Kia Niro", "price_raw": 25880, "repat_cost": 350.0, "total_price_key_in_hand": 26230.0, "mens_5k": 335.54, "mens_7k": 303.93, "km": 59925, "year": 2022, "power_kw": 152, "power_ch": 207, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": true, "is_sweet_spot": false, "city": "FREJUS", "zip": "83600", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/95dbbe33-b899-4a91-a00b-a23b5795487c_20435782-0210-4307-a4d6-2093af4152da.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/kia-niro-ev-204ch-premium-electrique-blanc-cat_ma39mo74327-95dbbe33-b899-4a91-a00b-a23b5795487c", "score": 7.0, "budget_status": "NEGOTIABLE", "budget_badge": "Négociable (< +25€/m)", "budget_class": "warning", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.890873"}, {"id": "4c998013-da47-47e3-84be-bf7f1820c321", "model_id": "megane_etech_iconic", "model_name": "Renault Mégane E-Tech (Iconic - Optimum Charge)", "title": "Renault Megane E-Tech", "price_raw": 24890, "repat_cost": 350.0, "total_price_key_in_hand": 25240.0, "mens_5k": 319.9, "mens_7k": 288.29, "km": 62677, "year": 2022, "power_kw": 160, "power_ch": 218, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": false, "is_sweet_spot": false, "city": "Issy-les-Moulineaux", "zip": "92130", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/4c998013-da47-47e3-84be-bf7f1820c321_1c7fcf7e-99cd-45fa-8944-faf416bfdea1.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/renault-megane-e-tech-e-tech-ev60-optimum-charge-techno-electrique-blanc-cat_ma60mo76249-4c998013-da47-47e3-84be-bf7f1820c321", "score": 6.6, "budget_status": "WITHIN_BUDGET", "budget_badge": "Dans le budget (apport 7k€)", "budget_class": "info", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:49.113705"}, {"id": "bde936ae-7a52-4ce3-80f4-3badcbbe6be9", "model_id": "megane_etech_iconic", "model_name": "Renault Mégane E-Tech (Iconic - Optimum Charge)", "title": "Renault Megane E-Tech", "price_raw": 25390, "repat_cost": 350.0, "total_price_key_in_hand": 25740.0, "mens_5k": 327.8, "mens_7k": 296.19, "km": 66026, "year": 2022, "power_kw": 160, "power_ch": 218, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": false, "is_sweet_spot": false, "city": "Issy-les-Moulineaux", "zip": "92130", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/bde936ae-7a52-4ce3-80f4-3badcbbe6be9_ac7c80f6-85bc-4071-9c78-282254dbe4ba.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/renault-megane-e-tech-e-tech-ev60-super-charge-iconic-electrique-gris-cat_ma60mo76249-bde936ae-7a52-4ce3-80f4-3badcbbe6be9", "score": 6.6, "budget_status": "WITHIN_BUDGET", "budget_badge": "Dans le budget (apport 7k€)", "budget_class": "info", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:49.113705"}, {"id": "06b89070-9bb9-4d1b-ad81-90781ebeba0e", "model_id": "kia_niro_ev_premium", "model_name": "Kia Niro EV 64,8 kWh (Premium)", "title": "Kia Niro", "price_raw": 28880, "repat_cost": 350.0, "total_price_key_in_hand": 29230.0, "mens_5k": 382.96, "mens_7k": 351.35, "km": 29655, "year": 2024, "power_kw": 152, "power_ch": 207, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "FREJUS", "zip": "83600", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/kia-niro-ev-204ch-premium-electrique-blanc-cat_ma39mo74327-06b89070-9bb9-4d1b-ad81-90781ebeba0e", "score": 6.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.890873"}, {"id": "616efe3b-6f82-4f66-9a54-c44894e3e300", "model_id": "peugeot_e3008_gt", "model_name": "Peugeot e-3008 73 kWh (Finition GT)", "title": "Peugeot 3008", "price_raw": 30990, "repat_cost": 350.0, "total_price_key_in_hand": 31340.0, "mens_5k": 416.31, "mens_7k": 384.7, "km": 20310, "year": 2025, "power_kw": 157, "power_ch": 213, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Tremuson", "zip": "22440", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/616efe3b-6f82-4f66-9a54-c44894e3e300_531a8879-9275-4fb7-9c12-8c664d341c74.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/peugeot-3008-electrique-73-kwh-210-ch-allure-electrique-cat_ma55mo19217-616efe3b-6f82-4f66-9a54-c44894e3e300", "score": 6.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:54.629813"}, {"id": "ddcc5a32-f4b3-4f7d-80c8-4fd2db03124f", "model_id": "hyundai_kona_2_exec", "model_name": "Hyundai Kona 2 Grande Autonomie 65 kWh (Executive)", "title": "Hyundai KONA", "price_raw": 31990, "repat_cost": 350.0, "total_price_key_in_hand": 32340.0, "mens_5k": 432.11, "mens_7k": 400.5, "km": 8000, "year": 2026, "power_kw": 160, "power_ch": 218, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Angers", "zip": "49070", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/ddcc5a32-f4b3-4f7d-80c8-4fd2db03124f_5dc2c413-43a6-4fdc-a145-ce6c798112d7.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/hyundai-kona-kona-electrique-65-kwh-217-ch-electrique-rouge-cat_ma33mo74663-ddcc5a32-f4b3-4f7d-80c8-4fd2db03124f", "score": 6.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:53.777710"}, {"id": "cbf26e4f-9386-40f7-8b9c-7adf97e763b1", "model_id": "peugeot_e3008_gt", "model_name": "Peugeot e-3008 73 kWh (Finition GT)", "title": "Peugeot 3008", "price_raw": 32799, "repat_cost": 350.0, "total_price_key_in_hand": 33149.0, "mens_5k": 444.9, "mens_7k": 413.29, "km": 12052, "year": 2025, "power_kw": 159, "power_ch": 216, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Compiegne", "zip": "60200", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/cbf26e4f-9386-40f7-8b9c-7adf97e763b1_0229209c-396a-49d5-ab4f-78acbd2b5c7e.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/peugeot-3008-electrique-210ch-batterie-73-kwh-allure-electrique-cat_ma55mo19217-cbf26e4f-9386-40f7-8b9c-7adf97e763b1", "score": 6.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:54.629813"}, {"id": "c1838042-7c28-4916-87c3-a1a2c1320754", "model_id": "skoda_enyaq_80", "model_name": "Skoda Enyaq iV 80", "title": "Skoda Enyaq", "price_raw": 33190, "repat_cost": 350.0, "total_price_key_in_hand": 33540.0, "mens_5k": 451.08, "mens_7k": 419.47, "km": 29287, "year": 2024, "power_kw": 210, "power_ch": 286, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Issy-les-Moulineaux", "zip": "92130", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/c1838042-7c28-4916-87c3-a1a2c1320754_87d306c1-5d91-4f08-911f-345bcdb7de26.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/skoda-enyaq-85-loft-electrique-gris-cat_ma65mo75750-c1838042-7c28-4916-87c3-a1a2c1320754", "score": 6.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:47.333683"}, {"id": "7e788888-5fd1-4076-8506-5d5e8c034947", "model_id": "peugeot_e3008_gt", "model_name": "Peugeot e-3008 73 kWh (Finition GT)", "title": "Peugeot 3008", "price_raw": 33990, "repat_cost": 350.0, "total_price_key_in_hand": 34340.0, "mens_5k": 463.72, "mens_7k": 432.11, "km": 19300, "year": 2025, "power_kw": 159, "power_ch": 216, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "La Tour-de-Salvagny", "zip": "69890", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/7e788888-5fd1-4076-8506-5d5e8c034947_cb944f70-cc67-4a37-a0de-2e47deca8aa4.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/peugeot-3008-electrique-210ch-batterie-73-kwh-gt-exclusive-electrique-blanc-cat_ma55mo19217-7e788888-5fd1-4076-8506-5d5e8c034947", "score": 6.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:54.629813"}, {"id": "51ac858f-29f9-4994-9f0b-4b2bc37a3335", "model_id": "peugeot_e3008_gt", "model_name": "Peugeot e-3008 73 kWh (Finition GT)", "title": "Peugeot 3008", "price_raw": 34999, "repat_cost": 350.0, "total_price_key_in_hand": 35349.0, "mens_5k": 479.67, "mens_7k": 448.06, "km": 7099, "year": 2025, "power_kw": 159, "power_ch": 216, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Avion", "zip": "62210", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/peugeot-3008-electrique-210ch-batterie-73-kwh-allure-electrique-cat_ma55mo19217-51ac858f-29f9-4994-9f0b-4b2bc37a3335", "score": 6.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:54.629813"}, {"id": "f1a11b37-7a7e-46e5-9b82-0ac660bd59d0", "model_id": "kia_ev6", "model_name": "Kia EV6 Grande Autonomie (77,4 kWh)", "title": "Kia EV6", "price_raw": 36490, "repat_cost": 350.0, "total_price_key_in_hand": 36840.0, "mens_5k": 503.24, "mens_7k": 471.63, "km": 155, "year": 2025, "power_kw": 168, "power_ch": 228, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "La Mézière", "zip": "35520", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/f1a11b37-7a7e-46e5-9b82-0ac660bd59d0_baa49dfa-d0fe-4052-9377-1b77a1139a54.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/kia-ev6-229-ch-air-active-business-electrique-noir-cat_ma39mo75945-f1a11b37-7a7e-46e5-9b82-0ac660bd59d0", "score": 6.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.060302"}, {"id": "0933eab8-4491-4b5d-8985-f3ca70b767f1", "model_id": "peugeot_e3008_gt", "model_name": "Peugeot e-3008 73 kWh (Finition GT)", "title": "Peugeot 3008", "price_raw": 36499, "repat_cost": 350.0, "total_price_key_in_hand": 36849.0, "mens_5k": 503.38, "mens_7k": 471.77, "km": 4325, "year": 2025, "power_kw": 159, "power_ch": 216, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Poitiers", "zip": "86000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/peugeot-3008-electrique-210ch-batterie-73-kwh-gt-electrique-cat_ma55mo19217-0933eab8-4491-4b5d-8985-f3ca70b767f1", "score": 6.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:54.629813"}, {"id": "8dc41c28-5c67-4365-9924-a6dd7c34a532", "model_id": "peugeot_e3008_gt", "model_name": "Peugeot e-3008 73 kWh (Finition GT)", "title": "Peugeot 3008", "price_raw": 37590, "repat_cost": 350.0, "total_price_key_in_hand": 37940.0, "mens_5k": 520.62, "mens_7k": 489.01, "km": 2000, "year": 2026, "power_kw": 159, "power_ch": 216, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "BELLEVILLE SUR MEUSE", "zip": "55430", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/8dc41c28-5c67-4365-9924-a6dd7c34a532_33d982bb-35ca-4707-949d-395553649048.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/peugeot-3008-electrique-210ch-batterie-73-kwh-allure-electrique-bleu-cat_ma55mo19217-8dc41c28-5c67-4365-9924-a6dd7c34a532", "score": 6.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:54.629813"}, {"id": "9c96cb6f-9838-4673-b75e-1938ac59ec43", "model_id": "peugeot_e3008_gt", "model_name": "Peugeot e-3008 73 kWh (Finition GT)", "title": "Peugeot 3008", "price_raw": 40699, "repat_cost": 350.0, "total_price_key_in_hand": 41049.0, "mens_5k": 569.76, "mens_7k": 538.15, "km": 6000, "year": 2026, "power_kw": 159, "power_ch": 216, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Sedan", "zip": "08200", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/peugeot-3008-electrique-210ch-batterie-73-kwh-gt-electrique-bleu-cat_ma55mo19217-9c96cb6f-9838-4673-b75e-1938ac59ec43", "score": 6.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:54.629813"}, {"id": "7e78e2c7-52d9-41fe-8767-743496c07ee7", "model_id": "peugeot_e3008_gt", "model_name": "Peugeot e-3008 73 kWh (Finition GT)", "title": "Peugeot 3008", "price_raw": 40899, "repat_cost": 350.0, "total_price_key_in_hand": 41249.0, "mens_5k": 572.92, "mens_7k": 541.31, "km": 6000, "year": 2026, "power_kw": 159, "power_ch": 216, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Sedan", "zip": "08200", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/7e78e2c7-52d9-41fe-8767-743496c07ee7_cd30893b-180f-4b55-88b9-c0fe4d7d42da.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/peugeot-3008-electrique-210ch-batterie-73-kwh-gt-electrique-bleu-cat_ma55mo19217-7e78e2c7-52d9-41fe-8767-743496c07ee7", "score": 6.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:54.629813"}, {"id": "e86d6082-ac4f-4976-bc00-0a953e0a891a", "model_id": "kia_ev6", "model_name": "Kia EV6 Grande Autonomie (77,4 kWh)", "title": "Kia EV6", "price_raw": 53200, "repat_cost": 350.0, "total_price_key_in_hand": 53550.0, "mens_5k": 767.34, "mens_7k": 735.73, "km": 9900, "year": 2026, "power_kw": 243, "power_ch": 330, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "FREJUS", "zip": "83600", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/e86d6082-ac4f-4976-bc00-0a953e0a891a_84cbc424-64b3-4a8a-b4b4-e0ce0bbfac24.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/kia-ev6-autonomie-longue-325ch-84kwh-gt-line-premium-awd-electrique-cat_ma39mo75945-e86d6082-ac4f-4976-bc00-0a953e0a891a", "score": 6.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.060302"}, {"id": "2171a7b7-e3cc-4fec-be58-64f02c0a0972", "model_id": "hyundai_ioniq_5", "model_name": "Hyundai Ioniq 5 (Executive ou Creative)", "title": "Hyundai IONIQ 5", "price_raw": 24490, "repat_cost": 350.0, "total_price_key_in_hand": 24840.0, "mens_5k": 313.57, "mens_7k": 281.96, "km": 72247, "year": 2021, "power_kw": 160, "power_ch": 218, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": false, "is_sweet_spot": false, "city": "Champigny sur marne", "zip": "94500", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/2171a7b7-e3cc-4fec-be58-64f02c0a0972_b56ef0c6-1424-4a67-8c4e-5f542da0fed0.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/hyundai-ioniq-5-creative-electrique-72kwh-bva-electrique-noir-cat_ma33mo75824-2171a7b7-e3cc-4fec-be58-64f02c0a0972", "score": 6.1, "budget_status": "WITHIN_BUDGET", "budget_badge": "Dans le budget (apport 7k€)", "budget_class": "info", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:50.285933"}, {"id": "a0d68675-354b-4219-957b-7fdbe6501a13", "model_id": "peugeot_e3008_gt", "model_name": "Peugeot e-3008 73 kWh (Finition GT)", "title": "Peugeot 3008", "price_raw": 28990, "repat_cost": 350.0, "total_price_key_in_hand": 29340.0, "mens_5k": 384.7, "mens_7k": 353.09, "km": 52940, "year": 2024, "power_kw": 157, "power_ch": 213, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Issy-les-Moulineaux", "zip": "92130", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/a0d68675-354b-4219-957b-7fdbe6501a13_93e644cd-a7c0-4c21-862d-ccb4c78c4a5f.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/peugeot-3008-electrique-gt-73-kwh-electrique-bleu-cat_ma55mo19217-a0d68675-354b-4219-957b-7fdbe6501a13", "score": 6.0, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:54.629813"}, {"id": "d893440d-077d-4b2f-a32d-ce1a92e662b7", "model_id": "kia_niro_ev_premium", "model_name": "Kia Niro EV 64,8 kWh (Premium)", "title": "Kia Niro", "price_raw": 29900, "repat_cost": 350.0, "total_price_key_in_hand": 30250.0, "mens_5k": 399.08, "mens_7k": 367.47, "km": 43678, "year": 2024, "power_kw": 152, "power_ch": 207, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "LA RAVOIRE", "zip": "73490", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/kia-niro-ev-204ch-motion-electrique-blanc-cat_ma39mo74327-d893440d-077d-4b2f-a32d-ce1a92e662b7", "score": 6.0, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.890873"}, {"id": "7b871817-cb05-4357-9b92-4d2d3a0c6495", "model_id": "peugeot_e3008_gt", "model_name": "Peugeot e-3008 73 kWh (Finition GT)", "title": "Peugeot 3008", "price_raw": 33288, "repat_cost": 350.0, "total_price_key_in_hand": 33638.0, "mens_5k": 452.63, "mens_7k": 421.02, "km": 36000, "year": 2024, "power_kw": 157, "power_ch": 213, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Strasbourg", "zip": "67000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/7b871817-cb05-4357-9b92-4d2d3a0c6495_fe8e1ef3-d272-4f97-b070-3e0ad81a48d0.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/peugeot-3008-allure-210-21-nav-cam-led-pdc-adml-electrique-blanc-cat_ma55mo19217-7b871817-cb05-4357-9b92-4d2d3a0c6495", "score": 6.0, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:54.629813"}, {"id": "c7821835-0045-4c3a-ab07-bc4971acea01", "model_id": "hyundai_ioniq_5", "model_name": "Hyundai Ioniq 5 (Executive ou Creative)", "title": "Hyundai IONIQ 5", "price_raw": 49420, "repat_cost": 350.0, "total_price_key_in_hand": 49770.0, "mens_5k": 707.6, "mens_7k": 675.99, "km": 35235, "year": 2025, "power_kw": 448, "power_ch": 609, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "PARIS", "zip": "75014", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/c7821835-0045-4c3a-ab07-bc4971acea01_6e094f82-27f5-49ea-834b-b3e9174ebf7f.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/hyundai-ioniq-5-ioniq-5-electric-84-kwh-609-n-phase-1-electrique-cat_ma33mo75824-c7821835-0045-4c3a-ab07-bc4971acea01", "score": 6.0, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:50.285933"}, {"id": "87f0ed06-3329-417a-9fc1-6643875ffb2f", "model_id": "peugeot_e3008_gt", "model_name": "Peugeot e-3008 73 kWh (Finition GT)", "title": "Peugeot 3008", "price_raw": 34480, "repat_cost": 350.0, "total_price_key_in_hand": 34830.0, "mens_5k": 471.47, "mens_7k": 439.86, "km": 19000, "year": 2025, "power_kw": 154, "power_ch": 209, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Saran", "zip": "45770", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/87f0ed06-3329-417a-9fc1-6643875ffb2f_14536d50-47a4-4ec3-ad78-732771f5f947.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/peugeot-3008-210-ch-73-kwh-gt-+-alcantara-electrique-noir-cat_ma55mo19217-87f0ed06-3329-417a-9fc1-6643875ffb2f", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:54.629813"}, {"id": "7242201d-dbb8-425c-9c96-30a09764852a", "model_id": "byd_seal_u_design", "model_name": "BYD Seal U EV (Design 87 kWh)", "title": "BYD Seal U", "price_raw": 34500, "repat_cost": 350.0, "total_price_key_in_hand": 34850.0, "mens_5k": 471.78, "mens_7k": 440.17, "km": 12300, "year": 2024, "power_kw": 160, "power_ch": 218, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Le Plessis-Trévise", "zip": "94420", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/7242201d-dbb8-425c-9c96-30a09764852a_7de67b7e-8d1c-4ceb-874c-7a70aa5082d4.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/byd-seal-u-comfort-218-ch-electrique-100-electrique-noir-cat_ma16379mo76816-7242201d-dbb8-425c-9c96-30a09764852a", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:52.935215"}, {"id": "8fa2eece-91cd-4aa1-be7c-bede819116f7", "model_id": "hyundai_ioniq_5", "model_name": "Hyundai Ioniq 5 (Executive ou Creative)", "title": "Hyundai IONIQ 5", "price_raw": 34590, "repat_cost": 350.0, "total_price_key_in_hand": 34940.0, "mens_5k": 473.21, "mens_7k": 441.6, "km": 17460, "year": 2024, "power_kw": 168, "power_ch": 228, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Dijon", "zip": "21000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/8fa2eece-91cd-4aa1-be7c-bede819116f7_06fed462-c4f7-4659-994d-f620b5ddfdbb.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/hyundai-ioniq-5-intuitive-rwd-77-4-kwh-228cv-autonomie-507-km-soh-99-garantie-constructeur-electrique-vert-cat_ma33mo75824-8fa2eece-91cd-4aa1-be7c-bede819116f7", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:50.285933"}, {"id": "b8539b6b-aaf5-4dd5-a757-86a67cc09423", "model_id": "peugeot_e3008_gt", "model_name": "Peugeot e-3008 73 kWh (Finition GT)", "title": "Peugeot 3008", "price_raw": 35299, "repat_cost": 350.0, "total_price_key_in_hand": 35649.0, "mens_5k": 484.41, "mens_7k": 452.8, "km": 20418, "year": 2025, "power_kw": 159, "power_ch": 216, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Champniers", "zip": "16430", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/b8539b6b-aaf5-4dd5-a757-86a67cc09423_b8fe7155-9ab9-4c64-8c55-86176643231a.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/peugeot-3008-electrique-210ch-batterie-73-kwh-gt-electrique-cat_ma55mo19217-b8539b6b-aaf5-4dd5-a757-86a67cc09423", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:54.629813"}, {"id": "3b806e4a-1ea2-470a-b7e2-10b1cf1be556", "model_id": "peugeot_e3008_gt", "model_name": "Peugeot e-3008 73 kWh (Finition GT)", "title": "Peugeot 3008", "price_raw": 35699, "repat_cost": 350.0, "total_price_key_in_hand": 36049.0, "mens_5k": 490.73, "mens_7k": 459.12, "km": 21260, "year": 2025, "power_kw": 159, "power_ch": 216, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Poitiers", "zip": "86000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/peugeot-3008-electrique-210ch-batterie-73-kwh-gt-electrique-cat_ma55mo19217-3b806e4a-1ea2-470a-b7e2-10b1cf1be556", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:54.629813"}, {"id": "bfd5a0ad-e582-4cbc-bff4-fe690d125e44", "model_id": "peugeot_e3008_gt", "model_name": "Peugeot e-3008 73 kWh (Finition GT)", "title": "Peugeot 3008", "price_raw": 36499, "repat_cost": 350.0, "total_price_key_in_hand": 36849.0, "mens_5k": 503.38, "mens_7k": 471.77, "km": 19989, "year": 2025, "power_kw": 159, "power_ch": 216, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Champniers", "zip": "16430", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/bfd5a0ad-e582-4cbc-bff4-fe690d125e44_80a8e05b-be27-4bf9-9e0a-e841e53e39ad.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/peugeot-3008-electrique-210ch-batterie-73-kwh-gt-electrique-cat_ma55mo19217-bfd5a0ad-e582-4cbc-bff4-fe690d125e44", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:54.629813"}, {"id": "6a062bbe-0a32-494b-8ff0-51387cef1d58", "model_id": "peugeot_e3008_gt", "model_name": "Peugeot e-3008 73 kWh (Finition GT)", "title": "Peugeot 3008", "price_raw": 36999, "repat_cost": 350.0, "total_price_key_in_hand": 37349.0, "mens_5k": 511.28, "mens_7k": 479.67, "km": 12192, "year": 2025, "power_kw": 159, "power_ch": 216, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Niort", "zip": "79000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/peugeot-3008-electrique-210ch-batterie-73-kwh-gt-electrique-cat_ma55mo19217-6a062bbe-0a32-494b-8ff0-51387cef1d58", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:54.629813"}, {"id": "20c2108b-288d-4071-b17b-c0a89f5ae85e", "model_id": "kia_niro_ev_premium", "model_name": "Kia Niro EV 64,8 kWh (Premium)", "title": "Kia Niro", "price_raw": 37114, "repat_cost": 350.0, "total_price_key_in_hand": 37464.0, "mens_5k": 513.1, "mens_7k": 481.49, "km": 166, "year": 2024, "power_kw": null, "power_ch": null, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Metz", "zip": "57000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/20c2108b-288d-4071-b17b-c0a89f5ae85e_9f6da48f-a5ba-4e4e-b9ef-e94027033c47.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/kia-niro-ev-my24-pace-64-electrique-noir-cat_ma39mo74327-20c2108b-288d-4071-b17b-c0a89f5ae85e", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.890873"}, {"id": "72dfe894-b474-4518-a356-5e6b389d4d31", "model_id": "peugeot_e3008_gt", "model_name": "Peugeot e-3008 73 kWh (Finition GT)", "title": "Peugeot 3008", "price_raw": 37990, "repat_cost": 350.0, "total_price_key_in_hand": 38340.0, "mens_5k": 526.94, "mens_7k": 495.33, "km": 9900, "year": 2025, "power_kw": null, "power_ch": null, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Lille", "zip": "59000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/72dfe894-b474-4518-a356-5e6b389d4d31_2115c456-7f35-43ba-8c1d-880c23781d45.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/peugeot-3008-e-3008-allure-electrique-gris-cat_ma55mo19217-72dfe894-b474-4518-a356-5e6b389d4d31", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:54.629813"}, {"id": "889ec03d-e3f8-4a0c-a72a-e315811e5539", "model_id": "peugeot_e3008_gt", "model_name": "Peugeot e-3008 73 kWh (Finition GT)", "title": "Peugeot 3008", "price_raw": 38899, "repat_cost": 350.0, "total_price_key_in_hand": 39249.0, "mens_5k": 541.31, "mens_7k": 509.7, "km": 7523, "year": 2025, "power_kw": 159, "power_ch": 216, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Niort", "zip": "79000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/889ec03d-e3f8-4a0c-a72a-e315811e5539_7d25c864-5d56-4854-bb41-20e0c807a136.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/peugeot-3008-electrique-325ch-batterie-73-kwh-4x4-gt-electrique-cat_ma55mo19217-889ec03d-e3f8-4a0c-a72a-e315811e5539", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:54.629813"}, {"id": "9be59b0f-4dbd-4a61-9555-6f2339c2848a", "model_id": "kia_ev6", "model_name": "Kia EV6 Grande Autonomie (77,4 kWh)", "title": "Kia EV6", "price_raw": 39900, "repat_cost": 350.0, "total_price_key_in_hand": 40250.0, "mens_5k": 557.13, "mens_7k": 525.52, "km": 31448, "year": 2024, "power_kw": 168, "power_ch": 228, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Lille", "zip": "59000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/9be59b0f-4dbd-4a61-9555-6f2339c2848a_1a2b737c-b7e1-4aeb-92c8-710b6d3f2632.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/kia-ev6-77-4kwh-gt-line-98-3-soh-528-km-wltp-electrique-noir-cat_ma39mo75945-9be59b0f-4dbd-4a61-9555-6f2339c2848a", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.060302"}, {"id": "972f7a56-9b13-4a02-b5a2-cb4665ccbb31", "model_id": "skoda_enyaq_80", "model_name": "Skoda Enyaq iV 80", "title": "Skoda Enyaq", "price_raw": 39990, "repat_cost": 350.0, "total_price_key_in_hand": 40340.0, "mens_5k": 558.55, "mens_7k": 526.94, "km": 28500, "year": 2025, "power_kw": 210, "power_ch": 286, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Fains-veel", "zip": "55000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/972f7a56-9b13-4a02-b5a2-cb4665ccbb31_79e34662-498b-4af3-bcd7-436ca9446361.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/skoda-enyaq-enyaq-iv-85x-electrique-gris-cat_ma65mo75750-972f7a56-9b13-4a02-b5a2-cb4665ccbb31", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:47.333683"}, {"id": "cb10e462-3cd5-4f9f-b810-c91a3931f793", "model_id": "peugeot_e3008_gt", "model_name": "Peugeot e-3008 73 kWh (Finition GT)", "title": "Peugeot 3008", "price_raw": 40499, "repat_cost": 350.0, "total_price_key_in_hand": 40849.0, "mens_5k": 566.6, "mens_7k": 534.99, "km": 8435, "year": 2025, "power_kw": 159, "power_ch": 216, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Champniers", "zip": "16430", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/cb10e462-3cd5-4f9f-b810-c91a3931f793_ced43b12-b2ca-4ae6-813b-4055392b474e.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/peugeot-3008-electrique-325ch-batterie-73-kwh-4x4-gt-exclusive-electrique-cat_ma55mo19217-cb10e462-3cd5-4f9f-b810-c91a3931f793", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:54.629813"}, {"id": "dc6ea669-56e7-4a4a-885d-e1df96a93d08", "model_id": "kia_ev6", "model_name": "Kia EV6 Grande Autonomie (77,4 kWh)", "title": "Kia EV6", "price_raw": 40900, "repat_cost": 350.0, "total_price_key_in_hand": 41250.0, "mens_5k": 572.94, "mens_7k": 541.33, "km": 14434, "year": 2024, "power_kw": 168, "power_ch": 228, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Lille", "zip": "59000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/dc6ea669-56e7-4a4a-885d-e1df96a93d08_e88963b5-cf11-4779-9d41-4c96f47cba1c.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/kia-ev6-77-4kwh-gt-line-98-8-soh-14-434-km-electrique-bleu-cat_ma39mo75945-dc6ea669-56e7-4a4a-885d-e1df96a93d08", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.060302"}, {"id": "298f2a5f-59e6-46f3-8807-9efb9ebbd24c", "model_id": "peugeot_e3008_gt", "model_name": "Peugeot e-3008 73 kWh (Finition GT)", "title": "Peugeot 3008", "price_raw": 40923, "repat_cost": 350.0, "total_price_key_in_hand": 41273.0, "mens_5k": 573.3, "mens_7k": 541.69, "km": 3000, "year": 2026, "power_kw": 154, "power_ch": 209, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Metz", "zip": "57000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/298f2a5f-59e6-46f3-8807-9efb9ebbd24c_5c36ea53-96ed-4cd3-b86d-0453fa3ada0e.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/peugeot-3008-iii-e-electrique-blanc-cat_ma55mo19217-298f2a5f-59e6-46f3-8807-9efb9ebbd24c", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:54.629813"}, {"id": "7f9cf6d5-9218-40b8-94d4-d96fb5a5bfdc", "model_id": "hyundai_ioniq_5", "model_name": "Hyundai Ioniq 5 (Executive ou Creative)", "title": "Hyundai IONIQ 5", "price_raw": 44490, "repat_cost": 350.0, "total_price_key_in_hand": 44840.0, "mens_5k": 629.68, "mens_7k": 598.07, "km": 8000, "year": 2026, "power_kw": 168, "power_ch": 228, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Mouilleron-le-Captif", "zip": "85000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/7f9cf6d5-9218-40b8-94d4-d96fb5a5bfdc_6dfd32ae-d293-4095-8074-ba536b438476.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/hyundai-ioniq-5-ioniq-5-84-kwh-229-ch-electrique-rouge-cat_ma33mo75824-7f9cf6d5-9218-40b8-94d4-d96fb5a5bfdc", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:50.285933"}, {"id": "e963be62-7221-4b0e-9a81-1ae6e1a8d28a", "model_id": "skoda_enyaq_80", "model_name": "Skoda Enyaq iV 80", "title": "Skoda Enyaq", "price_raw": 44950, "repat_cost": 350.0, "total_price_key_in_hand": 45300.0, "mens_5k": 636.95, "mens_7k": 605.34, "km": 21200, "year": 2025, "power_kw": 210, "power_ch": 286, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Lille", "zip": "59000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/e963be62-7221-4b0e-9a81-1ae6e1a8d28a_d0ffc407-4259-4981-89d5-5fcb275bb9d6.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/skoda-enyaq-coupe-85-sportline-pano-massage-electrique-vert-cat_ma65mo75750-e963be62-7221-4b0e-9a81-1ae6e1a8d28a", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:47.333683"}, {"id": "177a8712-1fbb-4b44-8739-0607462575ba", "model_id": "hyundai_ioniq_5", "model_name": "Hyundai Ioniq 5 (Executive ou Creative)", "title": "Hyundai IONIQ 5", "price_raw": 48182, "repat_cost": 350.0, "total_price_key_in_hand": 48532.0, "mens_5k": 688.03, "mens_7k": 656.42, "km": 15, "year": 2026, "power_kw": 168, "power_ch": 228, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "LAVAU", "zip": "10150", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/177a8712-1fbb-4b44-8739-0607462575ba_3816eb6d-ce6b-462c-b8a9-1de3ff3e153e.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/hyundai-ioniq-5-comfort-plus-84-rwd-electrique-blanc-cat_ma33mo75824-177a8712-1fbb-4b44-8739-0607462575ba", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:50.285933"}, {"id": "93061866-c135-42b1-b82b-38ff98f9da07", "model_id": "hyundai_ioniq_5", "model_name": "Hyundai Ioniq 5 (Executive ou Creative)", "title": "Hyundai IONIQ 5", "price_raw": 49180, "repat_cost": 350.0, "total_price_key_in_hand": 49530.0, "mens_5k": 703.8, "mens_7k": 672.19, "km": 30746, "year": 2024, "power_kw": 448, "power_ch": 609, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "PARIS", "zip": "75014", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/93061866-c135-42b1-b82b-38ff98f9da07_4f2d44a2-f218-42d4-852f-a44d6a788b65.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/hyundai-ioniq-5-ioniq-5-electric-84-kwh-609-n-phase-1-electrique-or-cat_ma33mo75824-93061866-c135-42b1-b82b-38ff98f9da07", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:50.285933"}, {"id": "f3fd2e5c-f26b-458f-9ee7-21a544f6820a", "model_id": "skoda_enyaq_80", "model_name": "Skoda Enyaq iV 80", "title": "Skoda Enyaq", "price_raw": 49450, "repat_cost": 350.0, "total_price_key_in_hand": 49800.0, "mens_5k": 708.07, "mens_7k": 676.46, "km": 19500, "year": 2025, "power_kw": 210, "power_ch": 286, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Paris", "zip": "75006", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/f3fd2e5c-f26b-458f-9ee7-21a544f6820a_93f06e70-ef2c-4e60-a88e-a6e3cd7dd1df.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/skoda-enyaq-coupe-85-sportline-82-kwh-batterie-elektro-electrique-gris-cat_ma65mo75750-f3fd2e5c-f26b-458f-9ee7-21a544f6820a", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:47.333683"}, {"id": "77209552-9dd4-4c0f-a9e6-63d05515f0fe", "model_id": "hyundai_ioniq_5", "model_name": "Hyundai Ioniq 5 (Executive ou Creative)", "title": "Hyundai IONIQ 5", "price_raw": 50048, "repat_cost": 350.0, "total_price_key_in_hand": 50398.0, "mens_5k": 717.52, "mens_7k": 685.91, "km": 981, "year": 2026, "power_kw": 168, "power_ch": 228, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "LAVAU", "zip": "10150", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/77209552-9dd4-4c0f-a9e6-63d05515f0fe_6454d71f-0591-4a0f-8998-2c70dba0cad3.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/hyundai-ioniq-5-n-line-84-rwd-electrique-blanc-cat_ma33mo75824-77209552-9dd4-4c0f-a9e6-63d05515f0fe", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:50.285933"}, {"id": "e5a5d00b-1e47-41aa-b404-8194f98a262e", "model_id": "hyundai_ioniq_5", "model_name": "Hyundai Ioniq 5 (Executive ou Creative)", "title": "Hyundai IONIQ 5", "price_raw": 50999, "repat_cost": 350.0, "total_price_key_in_hand": 51349.0, "mens_5k": 732.55, "mens_7k": 700.94, "km": 7000, "year": 2026, "power_kw": 171, "power_ch": 232, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "BISCHHEIM", "zip": "67800", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/e5a5d00b-1e47-41aa-b404-8194f98a262e_f8ebdf6d-d14e-41e8-b588-95cd5723ae49.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/hyundai-ioniq-5-84-kwh-229ch-executive-electrique-or-cat_ma33mo75824-e5a5d00b-1e47-41aa-b404-8194f98a262e", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:50.285933"}, {"id": "355cac37-6ff9-4137-84c9-c59ff4a88607", "model_id": "hyundai_ioniq_5", "model_name": "Hyundai Ioniq 5 (Executive ou Creative)", "title": "Hyundai IONIQ 5", "price_raw": 51299, "repat_cost": 350.0, "total_price_key_in_hand": 51649.0, "mens_5k": 737.29, "mens_7k": 705.68, "km": 328, "year": 2026, "power_kw": 168, "power_ch": 228, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "LAVAU", "zip": "10150", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/355cac37-6ff9-4137-84c9-c59ff4a88607_e3fbb8d7-2984-4199-9a08-f66ee0314485.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/hyundai-ioniq-5-n-line-84-rwd-electrique-blanc-cat_ma33mo75824-355cac37-6ff9-4137-84c9-c59ff4a88607", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:50.285933"}, {"id": "b7ae787d-0a91-4faa-b5b3-9811dcf52b65", "model_id": "hyundai_ioniq_5", "model_name": "Hyundai Ioniq 5 (Executive ou Creative)", "title": "Hyundai IONIQ 5", "price_raw": 51299, "repat_cost": 350.0, "total_price_key_in_hand": 51649.0, "mens_5k": 737.29, "mens_7k": 705.68, "km": 624, "year": 2026, "power_kw": 168, "power_ch": 228, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "LAVAU", "zip": "10150", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/b7ae787d-0a91-4faa-b5b3-9811dcf52b65_c35c1745-5516-4803-9801-a5e0064e66ce.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/hyundai-ioniq-5-n-line-84-rwd-electrique-blanc-cat_ma33mo75824-b7ae787d-0a91-4faa-b5b3-9811dcf52b65", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:50.285933"}, {"id": "0a88e788-43fe-41f0-9a7b-0bb74986a3d6", "model_id": "hyundai_ioniq_5", "model_name": "Hyundai Ioniq 5 (Executive ou Creative)", "title": "Hyundai IONIQ 5", "price_raw": 51299, "repat_cost": 350.0, "total_price_key_in_hand": 51649.0, "mens_5k": 737.29, "mens_7k": 705.68, "km": 684, "year": 2026, "power_kw": 168, "power_ch": 228, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "LAVAU", "zip": "10150", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/0a88e788-43fe-41f0-9a7b-0bb74986a3d6_d3f1ae8b-71cc-4d99-a86f-fc8570ef1cfc.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/hyundai-ioniq-5-n-line-84-rwd-electrique-blanc-cat_ma33mo75824-0a88e788-43fe-41f0-9a7b-0bb74986a3d6", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:50.285933"}, {"id": "4d3e0f2e-f294-45ce-9d39-4623434156c7", "model_id": "skoda_enyaq_80", "model_name": "Skoda Enyaq iV 80", "title": "Skoda Enyaq", "price_raw": 53005, "repat_cost": 350.0, "total_price_key_in_hand": 53355.0, "mens_5k": 764.26, "mens_7k": 732.65, "km": 5000, "year": 2026, "power_kw": 210, "power_ch": 286, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Metz", "zip": "57000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/4d3e0f2e-f294-45ce-9d39-4623434156c7_e1fb00d9-93c3-447f-bd37-783f01bfa9e2.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/skoda-enyaq-coupe-85-sportline-electrique-bleu-cat_ma65mo75750-4d3e0f2e-f294-45ce-9d39-4623434156c7", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:47.333683"}, {"id": "39f02cde-095c-412b-8852-e79258440c29", "model_id": "skoda_enyaq_80", "model_name": "Skoda Enyaq iV 80", "title": "Skoda Enyaq", "price_raw": 54990, "repat_cost": 350.0, "total_price_key_in_hand": 55340.0, "mens_5k": 795.63, "mens_7k": 764.02, "km": 14990, "year": 2025, "power_kw": 210, "power_ch": 286, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Lille", "zip": "59000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/39f02cde-095c-412b-8852-e79258440c29_1c13a51f-0367-426d-be1c-bd864f9d8475.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/skoda-enyaq-85-sportline-285ch-electrique-vert-cat_ma65mo75750-39f02cde-095c-412b-8852-e79258440c29", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:47.333683"}, {"id": "7eff592b-758e-463c-92e2-a447be93d65c", "model_id": "kia_ev6", "model_name": "Kia EV6 Grande Autonomie (77,4 kWh)", "title": "Kia EV6", "price_raw": 55490, "repat_cost": 350.0, "total_price_key_in_hand": 55840.0, "mens_5k": 803.53, "mens_7k": 771.92, "km": 16214, "year": 2024, "power_kw": 274, "power_ch": 373, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "MARIGNANE", "zip": "13700", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/7eff592b-758e-463c-92e2-a447be93d65c_d39f422c-0c69-41fb-8223-9530c4f7e617.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/kia-ev6-585ch-gt-4wd-electrique-gris-cat_ma39mo75945-7eff592b-758e-463c-92e2-a447be93d65c", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.060302"}, {"id": "3617ac72-e5ad-44c1-ac71-b9a1664d52ca", "model_id": "hyundai_ioniq_5", "model_name": "Hyundai Ioniq 5 (Executive ou Creative)", "title": "Hyundai IONIQ 5", "price_raw": 75589, "repat_cost": 350.0, "total_price_key_in_hand": 75939.0, "mens_5k": 1121.2, "mens_7k": 1089.59, "km": 932, "year": 2026, "power_kw": 448, "power_ch": 609, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "LAVAU", "zip": "10150", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/3617ac72-e5ad-44c1-ac71-b9a1664d52ca_567fbb58-5ea7-43ac-b36b-c4ae6f5f1ea1.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/hyundai-ioniq-5-n-vision-84kwh-awd-my27-electrique-blanc-cat_ma33mo75824-3617ac72-e5ad-44c1-ac71-b9a1664d52ca", "score": 5.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:50.285933"}, {"id": "07d14656-dfc4-4442-9e83-0fb0de7448b3", "model_id": "skoda_enyaq_80", "model_name": "Skoda Enyaq iV 80", "title": "Skoda Enyaq", "price_raw": 25590, "repat_cost": 350.0, "total_price_key_in_hand": 25940.0, "mens_5k": 330.96, "mens_7k": 299.35, "km": 83236, "year": 2021, "power_kw": 150, "power_ch": 204, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": false, "is_sweet_spot": false, "city": "Issy-les-Moulineaux", "zip": "92130", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/07d14656-dfc4-4442-9e83-0fb0de7448b3_dc508886-d9d8-476d-9f21-a14808b5f9c6.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/skoda-enyaq-electrique-iv-80-electrique-gris-cat_ma65mo75750-07d14656-dfc4-4442-9e83-0fb0de7448b3", "score": 5.5, "budget_status": "WITHIN_BUDGET", "budget_badge": "Dans le budget (apport 7k€)", "budget_class": "info", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:47.333683"}, {"id": "007eb6b6-7d88-4e3b-a956-b9fd18fb202a", "model_id": "kia_niro_ev_premium", "model_name": "Kia Niro EV 64,8 kWh (Premium)", "title": "Kia Niro", "price_raw": 27480, "repat_cost": 350.0, "total_price_key_in_hand": 27830.0, "mens_5k": 360.83, "mens_7k": 329.22, "km": 41681, "year": 2023, "power_kw": 152, "power_ch": 207, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "FREJUS", "zip": "83600", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/007eb6b6-7d88-4e3b-a956-b9fd18fb202a_01b47327-02f0-4324-97ac-d99ef5254878.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/kia-niro-ev-204ch-motion-electrique-blanc-cat_ma39mo74327-007eb6b6-7d88-4e3b-a956-b9fd18fb202a", "score": 5.5, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.890873"}, {"id": "9aa25f31-1461-40a7-b84b-b1a26cada3a5", "model_id": "kia_niro_ev_premium", "model_name": "Kia Niro EV 64,8 kWh (Premium)", "title": "Kia Niro", "price_raw": 27490, "repat_cost": 350.0, "total_price_key_in_hand": 27840.0, "mens_5k": 360.99, "mens_7k": 329.38, "km": 42208, "year": 2023, "power_kw": 150, "power_ch": 204, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Mouilleron-le-Captif", "zip": "85000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/9aa25f31-1461-40a7-b84b-b1a26cada3a5_e37b5bfd-cc9c-4514-87cf-58fb82ca19bf.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/kia-niro-niro-ev-electrique-204-ch-electrique-blanc-cat_ma39mo74327-9aa25f31-1461-40a7-b84b-b1a26cada3a5", "score": 5.5, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.890873"}, {"id": "b7388a08-8f31-414d-af82-02c00b69815f", "model_id": "kia_niro_ev_premium", "model_name": "Kia Niro EV 64,8 kWh (Premium)", "title": "Kia Niro", "price_raw": 27990, "repat_cost": 350.0, "total_price_key_in_hand": 28340.0, "mens_5k": 368.89, "mens_7k": 337.28, "km": 55419, "year": 2023, "power_kw": 152, "power_ch": 207, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "LA RAVOIRE", "zip": "73490", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/kia-niro-ev-204ch-active-electrique-vert-cat_ma39mo74327-b7388a08-8f31-414d-af82-02c00b69815f", "score": 5.5, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.890873"}, {"id": "693a09b6-7ec0-47dc-9814-238f0a73dd03", "model_id": "kia_niro_ev_premium", "model_name": "Kia Niro EV 64,8 kWh (Premium)", "title": "Kia Niro", "price_raw": 29900, "repat_cost": 350.0, "total_price_key_in_hand": 30250.0, "mens_5k": 399.08, "mens_7k": 367.47, "km": 45060, "year": 2023, "power_kw": 152, "power_ch": 207, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "LA RAVOIRE", "zip": "73490", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/kia-niro-ev-204ch-premium-electrique-vert-cat_ma39mo74327-693a09b6-7ec0-47dc-9814-238f0a73dd03", "score": 5.5, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.890873"}, {"id": "32b49c51-6485-48dd-93ba-5fd3f4c27ea9", "model_id": "mustang_mache_er", "model_name": "Ford Mustang Mach-E (Extended Range)", "title": "Ford Mustang Mach-E", "price_raw": 34990, "repat_cost": 350.0, "total_price_key_in_hand": 35340.0, "mens_5k": 479.53, "mens_7k": 447.92, "km": 56668, "year": 2023, "power_kw": 221, "power_ch": 300, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "En Belgique", "zip": "59000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/32b49c51-6485-48dd-93ba-5fd3f4c27ea9_b68c6960-c959-4c45-b25a-f3d32c4c1f69.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/ford-mustang-mach-e-x-99-kwh-extended-range-grosse-batterie-faible-km-toutes-assistance-a-la-conduite-eclaire-d-ambiance-full-electrique-blanc-cat_ma29mo75955-32b49c51-6485-48dd-93ba-5fd3f4c27ea9", "score": 5.5, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:48.243702"}, {"id": "bd015f90-ab95-46c9-baa4-2b7727705c8e", "model_id": "hyundai_ioniq_5", "model_name": "Hyundai Ioniq 5 (Executive ou Creative)", "title": "Hyundai IONIQ 5", "price_raw": 34990, "repat_cost": 350.0, "total_price_key_in_hand": 35340.0, "mens_5k": 479.53, "mens_7k": 447.92, "km": 46656, "year": 2023, "power_kw": 168, "power_ch": 228, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Tremuson", "zip": "22440", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/bd015f90-ab95-46c9-baa4-2b7727705c8e_24241283-f7bf-4f1d-aa0a-9170ff938fc1.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/hyundai-ioniq-5-77-kwh-229-ch-executive-electrique-blanc-cat_ma33mo75824-bd015f90-ab95-46c9-baa4-2b7727705c8e", "score": 5.5, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:50.285933"}, {"id": "18fc2d97-d82b-4775-9681-2c1ed39479af", "model_id": "kia_ev6", "model_name": "Kia EV6 Grande Autonomie (77,4 kWh)", "title": "Kia EV6", "price_raw": 34990, "repat_cost": 350.0, "total_price_key_in_hand": 35340.0, "mens_5k": 479.53, "mens_7k": 447.92, "km": 42283, "year": 2023, "power_kw": 168, "power_ch": 228, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Mouilleron-le-Captif", "zip": "85000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/18fc2d97-d82b-4775-9681-2c1ed39479af_a066ef33-d301-4162-9283-4d08c8826cf4.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/kia-ev6-ev6-229-ch-electrique-blanc-cat_ma39mo75945-18fc2d97-d82b-4775-9681-2c1ed39479af", "score": 5.5, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.060302"}, {"id": "0592ab42-23ce-4daa-b887-db00322ed1ab", "model_id": "mustang_mache_er", "model_name": "Ford Mustang Mach-E (Extended Range)", "title": "Ford Mustang Mach-E", "price_raw": 36490, "repat_cost": 350.0, "total_price_key_in_hand": 36840.0, "mens_5k": 503.24, "mens_7k": 471.63, "km": 52672, "year": 2023, "power_kw": 258, "power_ch": 351, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Kersaint-Plabennec", "zip": "29860", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/0592ab42-23ce-4daa-b887-db00322ed1ab_2bbc5629-8fa5-4df5-90d9-61a5e9a0d4c6.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/ford-mustang-mach-e-extended-range-91-kwh-351-ch-awd-premium-electrique-noir-cat_ma29mo75955-0592ab42-23ce-4daa-b887-db00322ed1ab", "score": 5.5, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:48.243702"}, {"id": "8e167487-0922-49c1-9edf-54ff60461b91", "model_id": "kia_ev6", "model_name": "Kia EV6 Grande Autonomie (77,4 kWh)", "title": "Kia EV6", "price_raw": 45480, "repat_cost": 350.0, "total_price_key_in_hand": 45830.0, "mens_5k": 645.32, "mens_7k": 613.71, "km": 43731, "year": 2023, "power_kw": 239, "power_ch": 325, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Paris", "zip": "75006", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/8e167487-0922-49c1-9edf-54ff60461b91_9f0fd32c-adc2-431f-b3ad-7bd89308feec.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/kia-ev6-81kw-gt-line-head-up-bi-color-electrique-noir-cat_ma39mo75945-8e167487-0922-49c1-9edf-54ff60461b91", "score": 5.5, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.060302"}, {"id": "19d5dac2-6414-4b56-bce0-0440e2910185", "model_id": "skoda_enyaq_80", "model_name": "Skoda Enyaq iV 80", "title": "Skoda Enyaq", "price_raw": 47990, "repat_cost": 350.0, "total_price_key_in_hand": 48340.0, "mens_5k": 685.0, "mens_7k": 653.39, "km": 49990, "year": 2023, "power_kw": 150, "power_ch": 204, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Mouscron", "zip": "77000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/19d5dac2-6414-4b56-bce0-0440e2910185_590e6ec2-390a-424c-9cf9-716104eafc7c.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/skoda-enyaq-c-iv-80-150-82-e1h-electrique-gris-cat_ma65mo75750-19d5dac2-6414-4b56-bce0-0440e2910185", "score": 5.5, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:47.333683"}, {"id": "f38362a3-bb9a-44eb-b844-aa2cb710ec12", "model_id": "kia_niro_ev_premium", "model_name": "Kia Niro EV 64,8 kWh (Premium)", "title": "Kia Niro", "price_raw": 29490, "repat_cost": 350.0, "total_price_key_in_hand": 29840.0, "mens_5k": 392.6, "mens_7k": 360.99, "km": 28816, "year": 2023, "power_kw": 152, "power_ch": 207, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "LA RAVOIRE", "zip": "73490", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/kia-niro-ev-204ch-active-electrique-vert-cat_ma39mo74327-f38362a3-bb9a-44eb-b844-aa2cb710ec12", "score": 5.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.890873"}, {"id": "790299e0-523a-4a28-928e-c9a9e6d12ae8", "model_id": "kia_niro_ev_premium", "model_name": "Kia Niro EV 64,8 kWh (Premium)", "title": "Kia Niro", "price_raw": 29799, "repat_cost": 350.0, "total_price_key_in_hand": 30149.0, "mens_5k": 397.48, "mens_7k": 365.87, "km": 20243, "year": 2023, "power_kw": 152, "power_ch": 207, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Annemasse", "zip": "74100", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/kia-niro-ev-204ch-premium-electrique-cat_ma39mo74327-790299e0-523a-4a28-928e-c9a9e6d12ae8", "score": 5.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.890873"}, {"id": "3dc61bd0-fd2a-45a0-b412-2d1456cb59af", "model_id": "kia_niro_ev_premium", "model_name": "Kia Niro EV 64,8 kWh (Premium)", "title": "Kia Niro", "price_raw": 29900, "repat_cost": 350.0, "total_price_key_in_hand": 30250.0, "mens_5k": 399.08, "mens_7k": 367.47, "km": 19310, "year": 2023, "power_kw": 152, "power_ch": 207, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "LA RAVOIRE", "zip": "73490", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/kia-niro-ev-204ch-active-electrique-blanc-cat_ma39mo74327-3dc61bd0-fd2a-45a0-b412-2d1456cb59af", "score": 5.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.890873"}, {"id": "cd4d78e8-2555-40e6-b8c1-698e47d6b208", "model_id": "hyundai_kona_2_exec", "model_name": "Hyundai Kona 2 Grande Autonomie 65 kWh (Executive)", "title": "Hyundai KONA", "price_raw": 29990, "repat_cost": 350.0, "total_price_key_in_hand": 30340.0, "mens_5k": 400.5, "mens_7k": 368.89, "km": 11800, "year": 2023, "power_kw": 160, "power_ch": 218, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Antibes", "zip": "06160", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/cd4d78e8-2555-40e6-b8c1-698e47d6b208_c3f9a0ee-3ee3-4184-a29e-f2332a89dba6.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/hyundai-kona-electric-65kwh-217ch-soh-creative-2wd-garantie-2028-attelage-electrique-blanc-cat_ma33mo74663-cd4d78e8-2555-40e6-b8c1-698e47d6b208", "score": 5.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:53.777710"}, {"id": "9ed2f0ed-0447-4192-a343-ae8be62569bb", "model_id": "kia_niro_ev_premium", "model_name": "Kia Niro EV 64,8 kWh (Premium)", "title": "Kia Niro", "price_raw": 33480, "repat_cost": 350.0, "total_price_key_in_hand": 33830.0, "mens_5k": 455.66, "mens_7k": 424.05, "km": 28557, "year": 2023, "power_kw": 150, "power_ch": 204, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Paris", "zip": "75006", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/9ed2f0ed-0447-4192-a343-ae8be62569bb_a2b508e2-e8c4-42ef-aa97-26ba8c5b6b2f.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/kia-niro-ev-electrique-gris-cat_ma39mo74327-9ed2f0ed-0447-4192-a343-ae8be62569bb", "score": 5.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.890873"}, {"id": "8490026c-c93d-42e6-b7b8-7f4342e1f7c8", "model_id": "skoda_enyaq_80", "model_name": "Skoda Enyaq iV 80", "title": "Skoda Enyaq", "price_raw": 35990, "repat_cost": 350.0, "total_price_key_in_hand": 36340.0, "mens_5k": 495.33, "mens_7k": 463.72, "km": 33509, "year": 2023, "power_kw": 150, "power_ch": 204, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Lille", "zip": "59000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/8490026c-c93d-42e6-b7b8-7f4342e1f7c8_c705a55f-0774-45fb-b15c-076a4dd31d49.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/skoda-enyaq-coupe-iv-80-pano-ambient-light-navi-carplay-electrique-gris-cat_ma65mo75750-8490026c-c93d-42e6-b7b8-7f4342e1f7c8", "score": 5.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:47.333683"}, {"id": "aade09aa-60b4-4973-8471-ff0cd9140a83", "model_id": "skoda_enyaq_80", "model_name": "Skoda Enyaq iV 80", "title": "Skoda Enyaq", "price_raw": 41990, "repat_cost": 350.0, "total_price_key_in_hand": 42340.0, "mens_5k": 590.16, "mens_7k": 558.55, "km": 31848, "year": 2023, "power_kw": 220, "power_ch": 299, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Metz", "zip": "57000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/aade09aa-60b4-4973-8471-ff0cd9140a83_20108842-f3c3-4bde-8015-40ebec99e95b.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/skoda-enyaq-coupe+82kwh+rs+advanced+4x4+head-up+rearview+cant-electrique-noir-cat_ma65mo75750-aade09aa-60b4-4973-8471-ff0cd9140a83", "score": 5.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:47.333683"}, {"id": "6610410b-dd5c-4ff9-b79b-da17757b92ca", "model_id": "kia_niro_ev_premium", "model_name": "Kia Niro EV 64,8 kWh (Premium)", "title": "Kia Niro", "price_raw": 48740, "repat_cost": 350.0, "total_price_key_in_hand": 49090.0, "mens_5k": 696.85, "mens_7k": 665.24, "km": 22264, "year": 2023, "power_kw": 150, "power_ch": 204, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Paris", "zip": "75006", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/kia-niro-e-niro-inspiration-electrique-noir-cat_ma39mo74327-6610410b-dd5c-4ff9-b79b-da17757b92ca", "score": 5.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.890873"}, {"id": "3fc78ec0-3846-4084-ae28-d9d63dbe19fc", "model_id": "kia_niro_ev_premium", "model_name": "Kia Niro EV 64,8 kWh (Premium)", "title": "Kia Niro", "price_raw": 53160, "repat_cost": 350.0, "total_price_key_in_hand": 53510.0, "mens_5k": 766.71, "mens_7k": 735.1, "km": 5349, "year": 2023, "power_kw": 150, "power_ch": 204, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Paris", "zip": "75006", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/kia-niro-e-niro-inspiration-electrique-blanc-cat_ma39mo74327-3fc78ec0-3846-4084-ae28-d9d63dbe19fc", "score": 5.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.890873"}, {"id": "2856ade6-f54d-45f4-8412-59e3214f54b9", "model_id": "kia_niro_ev_premium", "model_name": "Kia Niro EV 64,8 kWh (Premium)", "title": "Kia Niro", "price_raw": 53810, "repat_cost": 350.0, "total_price_key_in_hand": 54160.0, "mens_5k": 776.98, "mens_7k": 745.37, "km": 14912, "year": 2023, "power_kw": 150, "power_ch": 204, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Paris", "zip": "75006", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/kia-niro-e-niro-inspiration-electrique-gris-cat_ma39mo74327-2856ade6-f54d-45f4-8412-59e3214f54b9", "score": 5.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.890873"}, {"id": "97e7938a-70ee-428c-9673-0fec04f78437", "model_id": "kia_niro_ev_premium", "model_name": "Kia Niro EV 64,8 kWh (Premium)", "title": "Kia Niro", "price_raw": 53810, "repat_cost": 350.0, "total_price_key_in_hand": 54160.0, "mens_5k": 776.98, "mens_7k": 745.37, "km": 16575, "year": 2023, "power_kw": 150, "power_ch": 204, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Paris", "zip": "75006", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/kia-niro-e-niro-inspiration-electrique-gris-cat_ma39mo74327-97e7938a-70ee-428c-9673-0fec04f78437", "score": 5.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.890873"}, {"id": "4e7215b4-1cab-4011-8f8d-ebe3b0fe0639", "model_id": "kia_niro_ev_premium", "model_name": "Kia Niro EV 64,8 kWh (Premium)", "title": "Kia Niro", "price_raw": 53901, "repat_cost": 350.0, "total_price_key_in_hand": 54251.0, "mens_5k": 778.42, "mens_7k": 746.81, "km": 14371, "year": 2023, "power_kw": 150, "power_ch": 204, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Paris", "zip": "75006", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/kia-niro-e-niro-inspiration-electrique-noir-cat_ma39mo74327-4e7215b4-1cab-4011-8f8d-ebe3b0fe0639", "score": 5.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.890873"}, {"id": "47f3046a-1822-40e4-990a-cf929548d894", "model_id": "kia_niro_ev_premium", "model_name": "Kia Niro EV 64,8 kWh (Premium)", "title": "Kia Niro", "price_raw": 54100, "repat_cost": 350.0, "total_price_key_in_hand": 54450.0, "mens_5k": 781.57, "mens_7k": 749.95, "km": 9916, "year": 2023, "power_kw": 150, "power_ch": 204, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "Paris", "zip": "75006", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/kia-niro-e-niro-inspiration-electrique-bleu-cat_ma39mo74327-47f3046a-1822-40e4-990a-cf929548d894", "score": 5.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.890873"}, {"id": "3e952dc2-7628-4908-99f8-127df8e01cf6", "model_id": "kia_ev6", "model_name": "Kia EV6 Grande Autonomie (77,4 kWh)", "title": "Kia EV6", "price_raw": 59890, "repat_cost": 350.0, "total_price_key_in_hand": 60240.0, "mens_5k": 873.08, "mens_7k": 841.47, "km": 3000, "year": 2023, "power_kw": 274, "power_ch": 373, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": true, "is_sweet_spot": true, "city": "MIONS", "zip": "69780", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/3e952dc2-7628-4908-99f8-127df8e01cf6_26657ba2-2aa7-49fc-92a2-1c20e8e02da3.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/kia-ev6-585ch-gt-4wd-pac-v2tl-electrique-noir-cat_ma39mo75945-3e952dc2-7628-4908-99f8-127df8e01cf6", "score": 5.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.060302"}, {"id": "f018c9d3-5f62-4ae5-9843-f6dd9e332432", "model_id": "skoda_enyaq_80", "model_name": "Skoda Enyaq iV 80", "title": "Skoda Enyaq", "price_raw": 43490, "repat_cost": 350.0, "total_price_key_in_hand": 43840.0, "mens_5k": 613.87, "mens_7k": 582.26, "km": 79990, "year": 2023, "power_kw": 150, "power_ch": 204, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": false, "is_sweet_spot": false, "city": "Mouscron", "zip": "77000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/f018c9d3-5f62-4ae5-9843-f6dd9e332432_95e3dcfe-c84d-4a3d-a3af-8278cf9e7a82.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/skoda-enyaq-iv-80-150-82-e1h-electrique-gris-cat_ma65mo75750-f018c9d3-5f62-4ae5-9843-f6dd9e332432", "score": 4.6, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:47.333683"}, {"id": "48b38fa3-5889-41e9-9e98-99212dc81036", "model_id": "skoda_enyaq_80", "model_name": "Skoda Enyaq iV 80", "title": "Skoda Enyaq", "price_raw": 36000, "repat_cost": 350.0, "total_price_key_in_hand": 36350.0, "mens_5k": 495.49, "mens_7k": 463.88, "km": 55000, "year": 2022, "power_kw": 150, "power_ch": 204, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": true, "is_sweet_spot": false, "city": "Prigonrieux", "zip": "24130", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/48b38fa3-5889-41e9-9e98-99212dc81036_a0326289-006d-4590-a6c4-66893a738a35.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/skoda-enyaq-sport-line-electrique-noir-cat_ma65mo75750-48b38fa3-5889-41e9-9e98-99212dc81036", "score": 4.5, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:47.333683"}, {"id": "d51f2ae4-0d1a-4b11-99d4-f53688c973bc", "model_id": "mustang_mache_er", "model_name": "Ford Mustang Mach-E (Extended Range)", "title": "Ford Mustang Mach-E", "price_raw": 34990, "repat_cost": 350.0, "total_price_key_in_hand": 35340.0, "mens_5k": 479.53, "mens_7k": 447.92, "km": 24386, "year": 2022, "power_kw": 273, "power_ch": 371, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": true, "is_sweet_spot": false, "city": "En Belgique", "zip": "59000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/d51f2ae4-0d1a-4b11-99d4-f53688c973bc_181cb810-73d2-4194-877b-3a9212701ca4.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/ford-mustang-mach-e-x-awd-4x4-99kw-extended-range-suspension-pneumatique-interieur-carbone-toutes-assistance-a-la-conduite-full-electrique-gris-cat_ma29mo75955-d51f2ae4-0d1a-4b11-99d4-f53688c973bc", "score": 4.3, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:48.243702"}, {"id": "35c64ed5-07cd-4051-8f22-4054f3bc6d20", "model_id": "skoda_enyaq_80", "model_name": "Skoda Enyaq iV 80", "title": "Skoda Enyaq", "price_raw": 38450, "repat_cost": 350.0, "total_price_key_in_hand": 38800.0, "mens_5k": 534.21, "mens_7k": 502.6, "km": 73650, "year": 2023, "power_kw": 220, "power_ch": 299, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": false, "is_sweet_spot": false, "city": "Metz", "zip": "57000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/35c64ed5-07cd-4051-8f22-4054f3bc6d20_a77305ff-b3e5-4b9b-9bd5-5326d6b596eb.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/skoda-enyaq-iv-vrs-coupe-79kw-h-4x4-panorama-electrique-bleu-cat_ma65mo75750-35c64ed5-07cd-4051-8f22-4054f3bc6d20", "score": 4.1, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:47.333683"}, {"id": "0b8bc357-620b-4f69-88f9-33b62d050569", "model_id": "mustang_mache_er", "model_name": "Ford Mustang Mach-E (Extended Range)", "title": "Ford Mustang Mach-E", "price_raw": 32490, "repat_cost": 350.0, "total_price_key_in_hand": 32840.0, "mens_5k": 440.02, "mens_7k": 408.41, "km": 47000, "year": 2021, "power_kw": 259, "power_ch": 352, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": true, "is_sweet_spot": false, "city": "Montboucher-sur-Jabron", "zip": "26740", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/0b8bc357-620b-4f69-88f9-33b62d050569_fbdd9da4-1d2e-4aa2-87cd-aac2bb2af21b.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/ford-mustang-mach-e-351-cv-extended-range-electrique-gris-cat_ma29mo75955-0b8bc357-620b-4f69-88f9-33b62d050569", "score": 4.0, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:48.243702"}, {"id": "80880808-8dad-4a83-b0ca-83a397727d71", "model_id": "hyundai_ioniq_5", "model_name": "Hyundai Ioniq 5 (Executive ou Creative)", "title": "Hyundai IONIQ 5", "price_raw": 39990, "repat_cost": 350.0, "total_price_key_in_hand": 40340.0, "mens_5k": 558.55, "mens_7k": 526.94, "km": 56100, "year": 2021, "power_kw": 160, "power_ch": 218, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": true, "is_sweet_spot": false, "city": "Metz", "zip": "57000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/80880808-8dad-4a83-b0ca-83a397727d71_051a1f6a-1932-4f5f-9049-ca86660cec2b.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/hyundai-ioniq-5-73kwh-balance-electrique-vert-cat_ma33mo75824-80880808-8dad-4a83-b0ca-83a397727d71", "score": 4.0, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:50.285933"}, {"id": "d9bdf9bd-e276-4d2a-b2c2-f4cbf6d3ce81", "model_id": "kia_ev6", "model_name": "Kia EV6 Grande Autonomie (77,4 kWh)", "title": "Kia EV6", "price_raw": 53440, "repat_cost": 350.0, "total_price_key_in_hand": 53790.0, "mens_5k": 771.13, "mens_7k": 739.52, "km": 86304, "year": 2024, "power_kw": 168, "power_ch": 228, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": false, "is_sweet_spot": false, "city": "Paris", "zip": "75006", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/kia-ev6-elektro-77-4-kwh-2wd-electrique-rouge-cat_ma39mo75945-d9bdf9bd-e276-4d2a-b2c2-f4cbf6d3ce81", "score": 4.0, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.060302"}, {"id": "45702fb4-ec7e-4fe3-b15c-cf8d98b5fdd1", "model_id": "kia_ev6", "model_name": "Kia EV6 Grande Autonomie (77,4 kWh)", "title": "Kia EV6", "price_raw": 39990, "repat_cost": 350.0, "total_price_key_in_hand": 40340.0, "mens_5k": 558.55, "mens_7k": 526.94, "km": 11500, "year": 2021, "power_kw": 171, "power_ch": 232, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": true, "is_sweet_spot": false, "city": "LA RAVOIRE", "zip": "73490", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/45702fb4-ec7e-4fe3-b15c-cf8d98b5fdd1_e560bc3f-cfe9-48c5-ab38-7dc5b6de1770.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/kia-ev6-229ch-gt-line-2wd-electrique-rouge-cat_ma39mo75945-45702fb4-ec7e-4fe3-b15c-cf8d98b5fdd1", "score": 3.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.060302"}, {"id": "9ddff033-9bf5-4bce-9df4-3c5fb2df9697", "model_id": "hyundai_ioniq_5", "model_name": "Hyundai Ioniq 5 (Executive ou Creative)", "title": "Hyundai IONIQ 5", "price_raw": 59999, "repat_cost": 350.0, "total_price_key_in_hand": 60349.0, "mens_5k": 874.8, "mens_7k": 843.19, "km": 13495, "year": null, "power_kw": 471, "power_ch": 640, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": true, "is_sweet_spot": false, "city": "Lille", "zip": "59000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/9ddff033-9bf5-4bce-9df4-3c5fb2df9697_e0da2db9-0183-4cb7-ad20-a93b0f560245.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/hyundai-ioniq-5-ioniq-5-n-awd-pano-electrique-noir-cat_ma33mo75824-9ddff033-9bf5-4bce-9df4-3c5fb2df9697", "score": 3.8, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:50.285933"}, {"id": "86bc6999-a229-4e2d-ad32-213800a5d162", "model_id": "kia_ev6", "model_name": "Kia EV6 Grande Autonomie (77,4 kWh)", "title": "Kia EV6", "price_raw": 28590, "repat_cost": 350.0, "total_price_key_in_hand": 28940.0, "mens_5k": 378.38, "mens_7k": 346.77, "km": 90287, "year": 2023, "power_kw": 168, "power_ch": 228, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": false, "is_sweet_spot": false, "city": "Kersaint-Plabennec", "zip": "29860", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/86bc6999-a229-4e2d-ad32-213800a5d162_8f5a29ca-cb71-4ac4-8666-32fbfb120794.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/kia-ev6-229-ch-air-active-electrique-cat_ma39mo75945-86bc6999-a229-4e2d-ad32-213800a5d162", "score": 3.5, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.060302"}, {"id": "aa435e26-1a51-4da1-9c3a-577e83bd21be", "model_id": "mustang_mache_er", "model_name": "Ford Mustang Mach-E (Extended Range)", "title": "Ford Mustang Mach-E", "price_raw": 36990, "repat_cost": 350.0, "total_price_key_in_hand": 37340.0, "mens_5k": 511.14, "mens_7k": 479.53, "km": 94000, "year": 2023, "power_kw": 358, "power_ch": 487, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": true, "is_ideal_km": false, "is_sweet_spot": false, "city": "Limoges", "zip": "87280", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/aa435e26-1a51-4da1-9c3a-577e83bd21be_6f79bc4f-c722-4d18-9513-bd92639befc3.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/ford-mustang-mach-e-gt-487-98-8kwh-extended-range-awd-carplay-sieges-volant-chauffants-tva-electrique-cat_ma29mo75955-aa435e26-1a51-4da1-9c3a-577e83bd21be", "score": 3.5, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:48.243702"}, {"id": "fefde49c-18da-463c-9d98-9b14f8116203", "model_id": "kia_ev6", "model_name": "Kia EV6 Grande Autonomie (77,4 kWh)", "title": "Kia EV6", "price_raw": 30880, "repat_cost": 350.0, "total_price_key_in_hand": 31230.0, "mens_5k": 414.57, "mens_7k": 382.96, "km": 61719, "year": 2022, "power_kw": 171, "power_ch": 232, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": false, "is_sweet_spot": false, "city": "FREJUS", "zip": "83600", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/fefde49c-18da-463c-9d98-9b14f8116203_85df7aee-dbe5-4d7d-bc85-b3a4128b51bd.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/kia-ev6-229ch-air-design-2wd-electrique-gris-cat_ma39mo75945-fefde49c-18da-463c-9d98-9b14f8116203", "score": 3.1, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.060302"}, {"id": "e5a26585-cca9-44be-a4c8-5ca1caf6822d", "model_id": "kia_ev6", "model_name": "Kia EV6 Grande Autonomie (77,4 kWh)", "title": "Kia EV6", "price_raw": 31990, "repat_cost": 350.0, "total_price_key_in_hand": 32340.0, "mens_5k": 432.11, "mens_7k": 400.5, "km": 72846, "year": 2022, "power_kw": 168, "power_ch": 228, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": false, "is_sweet_spot": false, "city": "Lille", "zip": "59000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "", "ad_url": "https://www.autoscout24.fr/offres/kia-ev6-gt-line-77-kwh-rwd-acc-keyless-navi-carplay-electrique-bleu-cat_ma39mo75945-e5a26585-cca9-44be-a4c8-5ca1caf6822d", "score": 3.1, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.060302"}, {"id": "8561c549-f0bb-4f73-833f-ddd244d9847e", "model_id": "kia_ev6", "model_name": "Kia EV6 Grande Autonomie (77,4 kWh)", "title": "Kia EV6", "price_raw": 32490, "repat_cost": 350.0, "total_price_key_in_hand": 32840.0, "mens_5k": 440.02, "mens_7k": 408.41, "km": 79455, "year": 2022, "power_kw": 239, "power_ch": 325, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": false, "is_sweet_spot": false, "city": "Issy-les-Moulineaux", "zip": "92130", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/8561c549-f0bb-4f73-833f-ddd244d9847e_0b520e18-5d55-4c25-b088-ac8c0e4dba78.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/kia-ev6-electrique-77-4-kwh-gt-line-4wd-electrique-noir-cat_ma39mo75945-8561c549-f0bb-4f73-833f-ddd244d9847e", "score": 3.1, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.060302"}, {"id": "880d53fb-c2bc-453a-8263-f87fffafaebc", "model_id": "mustang_mache_er", "model_name": "Ford Mustang Mach-E (Extended Range)", "title": "Ford Mustang Mach-E", "price_raw": 32990, "repat_cost": 350.0, "total_price_key_in_hand": 33340.0, "mens_5k": 447.92, "mens_7k": 416.31, "km": 66672, "year": 2022, "power_kw": 273, "power_ch": 371, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": false, "is_sweet_spot": false, "city": "En Belgique", "zip": "59000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/880d53fb-c2bc-453a-8263-f87fffafaebc_602c3bbd-1744-424e-9374-a37cbf818c7d.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/ford-mustang-mach-e-4-awd-99-kwh-extended-range-4x4-371-cv-pk-tvac-btwin-full-led-black-edition-toutes-assistance-a-la-conduite-electrique-noir-cat_ma29mo75955-880d53fb-c2bc-453a-8263-f87fffafaebc", "score": 3.1, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:48.243702"}, {"id": "8ae2238c-bf13-4426-bfac-a6de567087c3", "model_id": "kia_ev6", "model_name": "Kia EV6 Grande Autonomie (77,4 kWh)", "title": "Kia EV6", "price_raw": 31990, "repat_cost": 350.0, "total_price_key_in_hand": 32340.0, "mens_5k": 432.11, "mens_7k": 400.5, "km": 69201, "year": 2021, "power_kw": 168, "power_ch": 228, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": false, "is_sweet_spot": false, "city": "Issy-les-Moulineaux", "zip": "92130", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/8ae2238c-bf13-4426-bfac-a6de567087c3_3889f24d-b8ee-490b-af1b-b01bf5ae18af.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/kia-ev6-electrique-77-4-kwh-gt-line-electrique-noir-cat_ma39mo75945-8ae2238c-bf13-4426-bfac-a6de567087c3", "score": 2.6, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.060302"}, {"id": "a7c7b53f-0cd6-483e-b001-e9f3e4594bd6", "model_id": "mustang_mache_er", "model_name": "Ford Mustang Mach-E (Extended Range)", "title": "Ford Mustang Mach-E", "price_raw": 28980, "repat_cost": 350.0, "total_price_key_in_hand": 29330.0, "mens_5k": 384.54, "mens_7k": 352.93, "km": 92415, "year": 2022, "power_kw": 219, "power_ch": 298, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": false, "is_sweet_spot": false, "city": "ATHIS MONS", "zip": "91200", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/a7c7b53f-0cd6-483e-b001-e9f3e4594bd6_a59b6921-e0db-4292-8c28-750b7aacb86e.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/ford-mustang-mach-e-294ch-extended-range-99kwh-7cv-electrique-cat_ma29mo75955-a7c7b53f-0cd6-483e-b001-e9f3e4594bd6", "score": 2.5, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:48.243702"}, {"id": "55f5283f-65de-4972-baa3-ed4bfaecf6c0", "model_id": "kia_ev6", "model_name": "Kia EV6 Grande Autonomie (77,4 kWh)", "title": "Kia EV6", "price_raw": 32000, "repat_cost": 350.0, "total_price_key_in_hand": 32350.0, "mens_5k": 432.27, "mens_7k": 400.66, "km": 86000, "year": 2022, "power_kw": 168, "power_ch": 228, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": false, "is_sweet_spot": false, "city": "La Neuville", "zip": "59239", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/55f5283f-65de-4972-baa3-ed4bfaecf6c0_593fbd06-83fb-4367-ac29-a90277484de8.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/kia-ev6-kia-ev6-gt-line-77-4-kwh-229-ch-propulsion-electrique-blanc-cat_ma39mo75945-55f5283f-65de-4972-baa3-ed4bfaecf6c0", "score": 2.5, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:51.060302"}, {"id": "dd0aa1fd-3695-4421-b9e8-fe073fcbb549", "model_id": "mustang_mache_er", "model_name": "Ford Mustang Mach-E (Extended Range)", "title": "Ford Mustang Mach-E", "price_raw": 27490, "repat_cost": 350.0, "total_price_key_in_hand": 27840.0, "mens_5k": 360.99, "mens_7k": 329.38, "km": 96588, "year": 2021, "power_kw": 221, "power_ch": 300, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": false, "is_sweet_spot": false, "city": "Lille", "zip": "59000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/dd0aa1fd-3695-4421-b9e8-fe073fcbb549_758b05d1-029a-4081-8eae-681948daface.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/ford-mustang-mach-e-99-kwh-rwd-standard-range-tva-btw-recup-cam360-keyless-bo-300pk-carplay-electrique-gris-cat_ma29mo75955-dd0aa1fd-3695-4421-b9e8-fe073fcbb549", "score": 2.0, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:48.243702"}, {"id": "bed282d0-ddfb-4614-acb2-5561ed02f563", "model_id": "skoda_enyaq_80", "model_name": "Skoda Enyaq iV 80", "title": "Skoda Enyaq", "price_raw": 27995, "repat_cost": 350.0, "total_price_key_in_hand": 28345.0, "mens_5k": 368.97, "mens_7k": 337.36, "km": 99087, "year": 2021, "power_kw": 202, "power_ch": 275, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": false, "is_sweet_spot": false, "city": "Lille", "zip": "59000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/bed282d0-ddfb-4614-acb2-5561ed02f563_9f651bb8-32bd-4725-97d6-eea614ce07a8.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/skoda-enyaq-82kwh-iv-80-400km-carplay-android-topstaat-electrique-gris-cat_ma65mo75750-bed282d0-ddfb-4614-acb2-5561ed02f563", "score": 2.0, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:47.333683"}, {"id": "a43212bb-5ebf-4a31-b3df-4bf424cf37d1", "model_id": "mustang_mache_er", "model_name": "Ford Mustang Mach-E (Extended Range)", "title": "Ford Mustang Mach-E", "price_raw": 28990, "repat_cost": 350.0, "total_price_key_in_hand": 29340.0, "mens_5k": 384.7, "mens_7k": 353.09, "km": 94741, "year": 2021, "power_kw": 221, "power_ch": 300, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": false, "is_sweet_spot": false, "city": "Lille", "zip": "59000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/a43212bb-5ebf-4a31-b3df-4bf424cf37d1_a366581f-519f-4aff-9ff4-eb27d5f90e42.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/ford-mustang-mach-e-rwd-soh-92-420-km-range-topstaat-1ste-eig-electrique-gris-cat_ma29mo75955-a43212bb-5ebf-4a31-b3df-4bf424cf37d1", "score": 2.0, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:48.243702"}, {"id": "e5d3600e-f6f0-46b0-8400-f9509b7010cf", "model_id": "mustang_mache_er", "model_name": "Ford Mustang Mach-E (Extended Range)", "title": "Ford Mustang Mach-E", "price_raw": 28990, "repat_cost": 350.0, "total_price_key_in_hand": 29340.0, "mens_5k": 384.7, "mens_7k": 353.09, "km": 90948, "year": 2021, "power_kw": 273, "power_ch": 371, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": false, "is_sweet_spot": false, "city": "Lille", "zip": "59000", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/e5d3600e-f6f0-46b0-8400-f9509b7010cf_dda1c098-4ea3-444f-943e-4f4e9d42973c.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/ford-mustang-mach-e-extended-range-awd-soh-92-5-500-km-range-electrique-gris-cat_ma29mo75955-e5d3600e-f6f0-46b0-8400-f9509b7010cf", "score": 2.0, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:48.243702"}, {"id": "b00bc1b3-93b3-4c82-85fc-c0c8cae3df82", "model_id": "mustang_mache_er", "model_name": "Ford Mustang Mach-E (Extended Range)", "title": "Ford Mustang Mach-E", "price_raw": 29990, "repat_cost": 350.0, "total_price_key_in_hand": 30340.0, "mens_5k": 400.5, "mens_7k": 368.89, "km": 89000, "year": 2021, "power_kw": 217, "power_ch": 295, "trim_label": "À vérifier", "has_target_trim": false, "is_recent": false, "is_ideal_km": false, "is_sweet_spot": false, "city": "Cournon-d'Auvergne", "zip": "63800", "seller_name": "Concessionnaire / Pro", "seller_type": "Pro", "img_url": "https://prod.pictures.autoscout24.net/listing-images/b00bc1b3-93b3-4c82-85fc-c0c8cae3df82_f39a440c-6719-4924-94ad-03caf8a905af.jpg/250x188.webp", "ad_url": "https://www.autoscout24.fr/offres/ford-mustang-mach-e-extended-range-99-kwh-294-ch-electrique-noir-cat_ma29mo75955-b00bc1b3-93b3-4c82-85fc-c0c8cae3df82", "score": 2.0, "budget_status": "OVER_BUDGET", "budget_badge": "Hors budget", "budget_class": "danger", "is_new": false, "price_drop": 0, "updated_at": "2026-11-09T02:19:48.243702"}];
+    const trendsData = {"stats_by_model": {"skoda_enyaq_80": {"model_id": "skoda_enyaq_80", "model_name": "Skoda Enyaq iV 80", "count": 14, "in_budget_count": 1, "min_price": 25590, "max_price": 54990, "avg_price": 40933, "median_price": 41990, "avg_km": 44627, "min_mens_7k": 299.35, "min_mens_5k": 330.96, "months_to_budget": 0, "budget_horizon": "Immédiat (Déjà dans le budget)", "horizon_class": "success", "forecast_timeline": [0, 3, 6, 9, 12, 18, 24], "forecast_min_prices": [25590, 24785, 24006, 23250, 22519, 21125, 19817], "forecast_median_prices": [41990, 40669, 39390, 38151, 36951, 34663, 32517]}, "mustang_mache_er": {"model_id": "mustang_mache_er", "model_name": "Ford Mustang Mach-E (Extended Range)", "count": 11, "in_budget_count": 0, "min_price": 27490, "max_price": 36990, "avg_price": 32125, "median_price": 32490, "avg_km": 73190, "min_mens_7k": 329.38, "min_mens_5k": 360.99, "months_to_budget": 7, "budget_horizon": "D'ici ~7 mois (Moyen terme)", "horizon_class": "info", "forecast_timeline": [0, 3, 6, 9, 12, 18, 24], "forecast_min_prices": [27490, 26625, 25788, 24977, 24191, 22693, 21288], "forecast_median_prices": [32490, 31468, 30478, 29520, 28591, 26821, 25160]}, "megane_etech_iconic": {"model_id": "megane_etech_iconic", "model_name": "Renault Mégane E-Tech (Iconic - Optimum Charge)", "count": 8, "in_budget_count": 7, "min_price": 18980, "max_price": 26190, "avg_price": 23039, "median_price": 22999, "avg_km": 57796, "min_mens_7k": 194.88, "min_mens_5k": 226.49, "months_to_budget": 0, "budget_horizon": "Immédiat (Déjà dans le budget)", "horizon_class": "success", "forecast_timeline": [0, 3, 6, 9, 12, 18, 24], "forecast_min_prices": [18980, 18383, 17805, 17245, 16702, 15668, 14698], "forecast_median_prices": [22999, 22276, 21575, 20896, 20239, 18986, 17810]}, "hyundai_ioniq_5": {"model_id": "hyundai_ioniq_5", "model_name": "Hyundai Ioniq 5 (Executive ou Creative)", "count": 15, "in_budget_count": 1, "min_price": 24490, "max_price": 75589, "avg_price": 47724, "median_price": 49420, "avg_km": 19366, "min_mens_7k": 281.96, "min_mens_5k": 313.57, "months_to_budget": 0, "budget_horizon": "Immédiat (Déjà dans le budget)", "horizon_class": "success", "forecast_timeline": [0, 3, 6, 9, 12, 18, 24], "forecast_min_prices": [24490, 23720, 22974, 22251, 21551, 20217, 18965], "forecast_median_prices": [49420, 47866, 46360, 44902, 43490, 40797, 38271]}, "kia_ev6": {"model_id": "kia_ev6", "model_name": "Kia EV6 Grande Autonomie (77,4 kWh)", "count": 16, "in_budget_count": 0, "min_price": 28590, "max_price": 59890, "avg_price": 40481, "median_price": 39900, "avg_km": 44904, "min_mens_7k": 346.77, "min_mens_5k": 378.38, "months_to_budget": 11, "budget_horizon": "D'ici ~11 mois (Moyen terme)", "horizon_class": "info", "forecast_timeline": [0, 3, 6, 9, 12, 18, 24], "forecast_min_prices": [28590, 27691, 26820, 25976, 25159, 23601, 22140], "forecast_median_prices": [39900, 38645, 37430, 36252, 35112, 32938, 30899]}, "kia_niro_ev_premium": {"model_id": "kia_niro_ev_premium", "model_name": "Kia Niro EV 64,8 kWh (Premium)", "count": 19, "in_budget_count": 1, "min_price": 24900, "max_price": 54100, "avg_price": 36827, "median_price": 29900, "avg_km": 29283, "min_mens_7k": 288.44, "min_mens_5k": 320.05, "months_to_budget": 0, "budget_horizon": "Immédiat (Déjà dans le budget)", "horizon_class": "success", "forecast_timeline": [0, 3, 6, 9, 12, 18, 24], "forecast_min_prices": [24900, 24117, 23358, 22624, 21912, 20555, 19283], "forecast_median_prices": [29900, 28960, 28049, 27166, 26312, 24683, 23155]}, "byd_seal_u_design": {"model_id": "byd_seal_u_design", "model_name": "BYD Seal U EV (Design 87 kWh)", "count": 1, "in_budget_count": 0, "min_price": 34500, "max_price": 34500, "avg_price": 34500, "median_price": 34500, "avg_km": 12300, "min_mens_7k": 440.17, "min_mens_5k": 471.78, "months_to_budget": 28, "budget_horizon": "D'ici ~28 mois", "horizon_class": "secondary", "forecast_timeline": [0, 3, 6, 9, 12, 18, 24], "forecast_min_prices": [34500, 33415, 32364, 31346, 30360, 28480, 26717], "forecast_median_prices": [34500, 33415, 32364, 31346, 30360, 28480, 26717]}, "hyundai_kona_2_exec": {"model_id": "hyundai_kona_2_exec", "model_name": "Hyundai Kona 2 Grande Autonomie 65 kWh (Executive)", "count": 2, "in_budget_count": 0, "min_price": 29990, "max_price": 31990, "avg_price": 30990, "median_price": 31990, "avg_km": 9900, "min_mens_7k": 368.89, "min_mens_5k": 400.5, "months_to_budget": 15, "budget_horizon": "D'ici ~15 mois", "horizon_class": "secondary", "forecast_timeline": [0, 3, 6, 9, 12, 18, 24], "forecast_min_prices": [29990, 29047, 28133, 27248, 26391, 24757, 23224], "forecast_median_prices": [31990, 30984, 30009, 29065, 28151, 26408, 24773]}, "peugeot_e3008_gt": {"model_id": "peugeot_e3008_gt", "model_name": "Peugeot e-3008 73 kWh (Finition GT)", "count": 19, "in_budget_count": 0, "min_price": 28990, "max_price": 40923, "avg_price": 36212, "median_price": 36499, "avg_km": 15144, "min_mens_7k": 353.09, "min_mens_5k": 384.7, "months_to_budget": 12, "budget_horizon": "D'ici ~12 mois (Moyen terme)", "horizon_class": "info", "forecast_timeline": [0, 3, 6, 9, 12, 18, 24], "forecast_min_prices": [28990, 28078, 27195, 26340, 25511, 23932, 22450], "forecast_median_prices": [36499, 35351, 34239, 33162, 32119, 30130, 28265]}}, "budget_ceiling_vehicle": 25631.14, "snapshots_history": [{"timestamp": "2026-11-09T02:19:55.135981", "date": "2026-11-09", "models": {"skoda_enyaq_80": {"min": 25590, "avg": 40933, "median": 41990, "count": 14, "in_budget": 1}, "mustang_mache_er": {"min": 27490, "avg": 32125, "median": 32490, "count": 11, "in_budget": 0}, "megane_etech_iconic": {"min": 18980, "avg": 23039, "median": 22999, "count": 8, "in_budget": 7}, "hyundai_ioniq_5": {"min": 24490, "avg": 47724, "median": 49420, "count": 15, "in_budget": 1}, "kia_ev6": {"min": 28590, "avg": 40481, "median": 39900, "count": 16, "in_budget": 0}, "kia_niro_ev_premium": {"min": 24900, "avg": 36827, "median": 29900, "count": 19, "in_budget": 1}, "byd_seal_u_design": {"min": 34500, "avg": 34500, "median": 34500, "count": 1, "in_budget": 0}, "hyundai_kona_2_exec": {"min": 29990, "avg": 30990, "median": 31990, "count": 2, "in_budget": 0}, "peugeot_e3008_gt": {"min": 28990, "avg": 36212, "median": 36499, "count": 19, "in_budget": 0}}}]};
+    let currentBudgetFilter = 'all';
+    let currentModelFilter = 'all';
+
+    function renderListings() {
+      const container = document.getElementById('cars-grid');
+      container.innerHTML = '';
+
+      const filtered = listingsData.filter(item => {
+        // Filtre Modèle
+        if (currentModelFilter !== 'all' && item.model_id !== currentModelFilter) {
+          return false;
+        }
+        // Filtres Spécifiques
+        if (currentBudgetFilter === 'sweet_spot') {
+          return item.is_sweet_spot && (item.budget_status === 'EXCELLENT_DEAL' || item.budget_status === 'WITHIN_BUDGET');
+        } else if (currentBudgetFilter === 'budget_ok') {
+          return item.budget_status === 'EXCELLENT_DEAL' || item.budget_status === 'WITHIN_BUDGET';
+        } else if (currentBudgetFilter === 'negotiable') {
+          return item.budget_status === 'NEGOTIABLE';
+        } else if (currentBudgetFilter === 'pepite') {
+          return item.score >= 8.0;
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <h3>Aucune offre ne correspond aux critères sélectionnés</h3>
+            <p style="margin-top: 0.5rem;">Modifiez vos filtres ou relancez la surveillance pour explorer de nouvelles annonces.</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(car => {
+        const card = document.createElement('div');
+        card.className = car.is_sweet_spot ? 'car-card sweet-card' : 'car-card';
+
+        const imgPlaceholder = 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=800&q=80';
+        const imageSrc = car.img_url || imgPlaceholder;
+
+        const badgeClass = car.budget_class === 'success' ? 'badge-success' :
+                           car.budget_class === 'info' ? 'badge-info' :
+                           car.budget_class === 'warning' ? 'badge-warning' : 'badge-danger';
+
+        const mens5kClass = car.mens_5k <= 300 ? 'target-ok' : (car.mens_5k <= 325 ? 'target-warn' : '');
+        const mens7kClass = car.mens_7k <= 300 ? 'target-ok' : (car.mens_7k <= 325 ? 'target-warn' : '');
+
+        card.innerHTML = `
+          <div class="card-image-wrap">
+            <img class="card-image" src="${imageSrc}" alt="${car.title}" loading="lazy" onerror="this.src='${imgPlaceholder}'">
+            <div class="image-overlay-badges">
+              <span class="badge ${badgeClass}">${car.budget_badge}</span>
+              <span class="badge score-badge">★ ${car.score}/10</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="car-header">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="car-model-name">${car.model_name}</span>
+                ${car.is_sweet_spot ? '<span class="chip" style="color:#22d3ee; border-color:rgba(6,182,212,0.4); font-weight:700">🎯 Cible Idéale</span>' : ''}
+              </div>
+              <h2 class="car-title" title="${car.title}">${car.title}</h2>
+            </div>
+
+            <div class="price-tag">
+              <span class="price-value">${car.price_raw.toLocaleString('fr-FR')} €</span>
+              <span class="price-sub">Clé en main : ${(car.price_raw + car.repat_cost).toLocaleString('fr-FR')} €</span>
+            </div>
+
+            <div class="fin-box">
+              <div class="fin-box-item">
+                <span class="fin-box-label">Apport 5 000 €</span>
+                <span class="fin-box-val ${mens5kClass}">${car.mens_5k} €<small style="font-size:0.75rem">/m</small></span>
+              </div>
+              <div class="fin-box-item">
+                <span class="fin-box-label">Apport 7 000 €</span>
+                <span class="fin-box-val ${mens7kClass}">${car.mens_7k} €<small style="font-size:0.75rem">/m</small></span>
+              </div>
+            </div>
+
+            <div class="chips-grid">
+              ${car.km ? (car.km <= 60000 ? `<span class="chip" style="color:#34d399; font-weight:700; border-color:rgba(52,211,153,0.3)">🛣️ ${car.km.toLocaleString('fr-FR')} km (Idéal)</span>` : `<span class="chip">🛣️ ${car.km.toLocaleString('fr-FR')} km</span>`) : ''}
+              ${car.year ? (car.year >= 2023 ? `<span class="chip" style="color:#67e8f9; font-weight:700; border-color:rgba(103,232,249,0.3)">📅 ${car.year} (Récent)</span>` : `<span class="chip">📅 ${car.year}</span>`) : ''}
+              ${car.power_ch ? `<span class="chip">⚡ ${car.power_ch} ch (${car.power_kw} kW)</span>` : ''}
+              ${car.trim_label ? `<span class="chip" style="color:#93c5fd; border-color:rgba(59,130,246,0.3)">🏷️ ${car.trim_label}</span>` : ''}
+              ${car.price_drop > 0 ? `<span class="chip" style="color:#34d399; font-weight:700">📉 Baisse: -${car.price_drop} €</span>` : ''}
+            </div>
+
+            <div class="card-footer">
+              <div class="location-info">
+                <span>📍 ${car.city} (${car.zip})</span>
+              </div>
+              <a href="${car.ad_url}" target="_blank" rel="noopener noreferrer" class="btn-view">
+                Consulter ↗
+              </a>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // Initialisation des graphiques Chart.js
+    function initCharts() {
+      const ctxDeprec = document.getElementById('depreciationChart').getContext('2d');
+      const ctxBudget = document.getElementById('budgetComparisonChart').getContext('2d');
+      const stats = trendsData.stats_by_model || {};
+      const budgetMax = trendsData.budget_ceiling_vehicle || 25631;
+
+      const palette = [
+        '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6',
+        '#06b6d4', '#14b8a6', '#f97316', '#6366f1'
+      ];
+
+      // 1. DATASETS COURBE DE DÉCOTE
+      const labels = ['Aujourd\'hui', '+3 mois', '+6 mois', '+9 mois', '+12 mois', '+18 mois', '+24 mois'];
+      const datasets = [];
+      let colorIdx = 0;
+
+      // Ligne de budget horizontale
+      datasets.push({
+        label: 'Plafond Budget BoursoBank (300€/m)',
+        data: [budgetMax, budgetMax, budgetMax, budgetMax, budgetMax, budgetMax, budgetMax],
+        borderColor: '#22c55e',
+        borderWidth: 2,
+        borderDash: [6, 6],
+        pointRadius: 0,
+        fill: false,
+        order: 0
+      });
+
+      for (const [mId, s] of Object.entries(stats)) {
+        const color = palette[colorIdx % palette.length];
+        colorIdx++;
+        datasets.push({
+          label: s.model_name.replace('Grande Autonomie', 'LR').replace('(Extended Range)', 'ER'),
+          data: s.forecast_min_prices,
+          borderColor: color,
+          backgroundColor: color,
+          borderWidth: 2,
+          tension: 0.35,
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          fill: false,
+          order: 1
+        });
+      }
+
+      new Chart(ctxDeprec, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: '#9ca3af', font: { size: 10 }, boxWidth: 12, padding: 10 }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.dataset.label + ': ' + context.parsed.y.toLocaleString('fr-FR') + ' €';
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#9ca3af', font: { size: 11 } }
+            },
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: {
+                color: '#9ca3af',
+                font: { size: 11 },
+                callback: function(val) { return (val / 1000) + ' k€'; }
+              }
+            }
+          }
+        }
+      });
+
+      // 2. BAR CHART COMPARATIF DES PRIX MIN ACTUELS
+      const modelNames = [];
+      const minPrices = [];
+      const barColors = [];
+
+      for (const [mId, s] of Object.entries(stats)) {
+        modelNames.push(s.model_name.split(' ')[0] + ' ' + (s.model_name.split(' ')[1] || ''));
+        minPrices.push(s.min_price);
+        barColors.push(s.min_price <= budgetMax ? '#10b981' : (s.min_price <= budgetMax + 2000 ? '#f59e0b' : '#3b82f6'));
+      }
+
+      new Chart(ctxBudget, {
+        type: 'bar',
+        data: {
+          labels: modelNames,
+          datasets: [{
+            label: 'Prix Min Actuel (€)',
+            data: minPrices,
+            backgroundColor: barColors,
+            borderRadius: 6
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  const diff = ctx.parsed.x - budgetMax;
+                  const diffStr = diff <= 0 ? ' (Dans le budget)' : ' (+' + diff.toLocaleString('fr-FR') + ' €)';
+                  return ctx.parsed.x.toLocaleString('fr-FR') + ' €' + diffStr;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: {
+                color: '#9ca3af',
+                callback: function(val) { return (val / 1000) + ' k€'; }
+              }
+            },
+            y: {
+              grid: { display: false },
+              ticks: { color: '#e5e7eb', font: { size: 11 } }
+            }
+          }
+        }
+      });
+    }
+
+    // Écouteurs sur les filtres
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const btnElem = e.currentTarget;
+        const type = btnElem.dataset.filterType;
+        const val = btnElem.dataset.val;
+
+        document.querySelectorAll(`.filter-btn[data-filter-type="${type}"]`).forEach(b => b.classList.remove('active'));
+        btnElem.classList.add('active');
+
+        if (type === 'budget') {
+          currentBudgetFilter = val;
+        } else if (type === 'model') {
+          currentModelFilter = val;
+        }
+
+        renderListings();
+      });
+    });
+
+    // Démarrage
+    renderListings();
+    initCharts();
+  </script>
+</body>
+</html>

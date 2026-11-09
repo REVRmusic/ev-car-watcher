@@ -1,0 +1,85 @@
+name: Surveillance Marché Véhicules Électriques
+
+on:
+  schedule:
+    # Exécution automatique tous les 3 jours à 07:00 UTC (08:00 en hiver / 09:00 en été à Paris)
+    - cron: '0 7 */3 * *'
+  workflow_dispatch: # Bouton d'exécution manuelle en 1 clic depuis l'interface GitHub
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "ev-car-watcher"
+  cancel-in-progress: false
+
+jobs:
+  run-watcher:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Récupération du code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🐍 Configuration de Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 📦 Installation des dépendances
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: ⚡ Exécution de la veille et calculs de décote
+        run: |
+          python watcher.py
+
+      - name: 📲 Envoi des notifications (si configuré)
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python notify.py
+
+      - name: 📋 Génération du récapitulatif GitHub Actions
+        run: |
+          python -c "
+          import json, os
+          with open('results.json', 'r', encoding='utf-8') as f:
+              d = json.load(f)
+          
+          summary = []
+          summary.append('# ⚡ Surveillance Marché Véhicules Électriques')
+          summary.append(f'**Dernière analyse :** {d.get(\"generated_at\")}')
+          summary.append(f'- **Annonces qualifiées (< 100k km) :** {d.get(\"total_analyzed\")}')
+          summary.append(f'- **Dans le budget (≤ 300 €/m BoursoBank) :** {d.get(\"in_budget_count\")}')
+          summary.append(f'- **Opportunités à négocier :** {d.get(\"negotiable_count\")}')
+          summary.append('\n### 🎯 Top 8 Meilleures Opportunités')
+          summary.append('| Modèle | Année | Kilométrage | Prix | Mensualité (Apport 7k€) | Statut | Ville |')
+          summary.append('| :--- | :---: | :---: | :---: | :---: | :---: | :--- |')
+          
+          for c in d['listings'][:8]:
+              flag = '🎯 ' if c.get('is_sweet_spot') else ''
+              km_val = f\"{c.get('km', 0):,} km\".replace(',', ' ')
+              price_val = f\"{c['price_raw']:,} €\".replace(',', ' ')
+              summary.append(f\"| {flag}**{c['model_name']}** | {c.get('year','-')} | {km_val} | {price_val} | **{c['mens_7k']} €/m** | {c['budget_badge']} | {c.get('city','-')} |\")
+          
+          summary.append('\n👉 Le rapport HTML complet est disponible dans le fichier index.html (ou via GitHub Pages).')
+          
+          summary_path = os.environ.get('GITHUB_STEP_SUMMARY')
+          if summary_path:
+              with open(summary_path, 'w', encoding='utf-8') as out:
+                  out.write('\n'.join(summary))
+          "
+
+      - name: 💾 Commit et sauvegarde des données actualisées
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add history.json market_trends.json results.json rapport_marche_ve.html index.html
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto: actualisation veille du marché EV et décote [skip ci]" && git push)
