@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-09T13:12:35.056561",
+  "generated_at": "2026-11-09T12:14:23.343990",
   "total_analyzed": 78,
   "in_budget_count": 7,
   "negotiable_count": 2,
@@ -493,7 +493,7 @@
     ],
     "snapshots_history": [
       {
-        "timestamp": "2026-11-09T13:12:35.056187",
+        "timestamp": "2026-11-09T12:14:23.343629",
         "date": "2026-11-09",
         "budget_ceiling_standard": 25631.14,
         "budget_ceiling_mixify": 30256.14,
@@ -624,7 +624,7 @@
       "budget_class": "emerald",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:01.492311"
+      "updated_at": "2026-11-09T12:13:47.166097"
     },
     {
       "id": "9aa25f31-1461-40a7-b84b-b1a26cada3a5",
@@ -667,7 +667,7 @@
       "budget_class": "emerald",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:04.182466"
+      "updated_at": "2026-11-09T12:13:50.386085"
     },
     {
       "id": "06b89070-9bb9-4d1b-ad81-90781ebeba0e",
@@ -710,7 +710,7 @@
       "budget_class": "emerald",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:04.182466"
+      "updated_at": "2026-11-09T12:13:50.386085"
     },
     {
       "id": "a0d68675-354b-4219-957b-7fdbe6501a13",
@@ -753,7 +753,7 @@
       "budget_class": "emerald",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:09.448064"
+      "updated_at": "2026-11-09T12:13:52.875203"
     },
     {
       "id": "790299e0-523a-4a28-928e-c9a9e6d12ae8",
@@ -796,7 +796,7 @@
       "budget_class": "emerald",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:04.182466"
+      "updated_at": "2026-11-09T12:13:50.386085"
     },
     {
       "id": "693a09b6-7ec0-47dc-9814-238f0a73dd03",
@@ -839,7 +839,7 @@
       "budget_class": "emerald",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:04.182466"
+      "updated_at": "2026-11-09T12:13:50.386085"
     },
     {
       "id": "cd4d78e8-2555-40e6-b8c1-698e47d6b208",
@@ -882,7 +882,7 @@
       "budget_class": "emerald",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:08.723328"
+      "updated_at": "2026-11-09T12:13:52.090478"
     },
     {
       "id": "7e788888-5fd1-4076-8506-5d5e8c034947",
@@ -925,7 +925,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:09.448064"
+      "updated_at": "2026-11-09T12:13:52.875203"
     },
     {
       "id": "87f0ed06-3329-417a-9fc1-6643875ffb2f",
@@ -968,7 +968,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:09.448064"
+      "updated_at": "2026-11-09T12:13:52.875203"
     },
     {
       "id": "b8539b6b-aaf5-4dd5-a757-86a67cc09423",
@@ -1011,7 +1011,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:09.448064"
+      "updated_at": "2026-11-09T12:13:52.875203"
     },
     {
       "id": "3b806e4a-1ea2-470a-b7e2-10b1cf1be556",
@@ -1054,7 +1054,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:09.448064"
+      "updated_at": "2026-11-09T12:13:52.875203"
     },
     {
       "id": "0933eab8-4491-4b5d-8985-f3ca70b767f1",
@@ -1097,7 +1097,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:09.448064"
+      "updated_at": "2026-11-09T12:13:52.875203"
     },
     {
       "id": "bfd5a0ad-e582-4cbc-bff4-fe690d125e44",
@@ -1140,7 +1140,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:09.448064"
+      "updated_at": "2026-11-09T12:13:52.875203"
     },
     {
       "id": "6a062bbe-0a32-494b-8ff0-51387cef1d58",
@@ -1183,7 +1183,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:09.448064"
+      "updated_at": "2026-11-09T12:13:52.875203"
     },
     {
       "id": "889ec03d-e3f8-4a0c-a72a-e315811e5539",
@@ -1226,7 +1226,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:09.448064"
+      "updated_at": "2026-11-09T12:13:52.875203"
     },
     {
       "id": "cb10e462-3cd5-4f9f-b810-c91a3931f793",
@@ -1269,7 +1269,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:09.448064"
+      "updated_at": "2026-11-09T12:13:52.875203"
     },
     {
       "id": "9c96cb6f-9838-4673-b75e-1938ac59ec43",
@@ -1312,7 +1312,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:09.448064"
+      "updated_at": "2026-11-09T12:13:52.875203"
     },
     {
       "id": "7e78e2c7-52d9-41fe-8767-743496c07ee7",
@@ -1355,7 +1355,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:09.448064"
+      "updated_at": "2026-11-09T12:13:52.875203"
     },
     {
       "id": "54b2412c-a0e6-47fe-84c1-551a457de9c7",
@@ -1398,7 +1398,7 @@
       "budget_class": "success",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:01.492311"
+      "updated_at": "2026-11-09T12:13:47.166097"
     },
     {
       "id": "4c998013-da47-47e3-84be-bf7f1820c321",
@@ -1441,7 +1441,7 @@
       "budget_class": "info",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:01.492311"
+      "updated_at": "2026-11-09T12:13:47.166097"
     },
     {
       "id": "bde936ae-7a52-4ce3-80f4-3badcbbe6be9",
@@ -1484,7 +1484,7 @@
       "budget_class": "info",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:01.492311"
+      "updated_at": "2026-11-09T12:13:47.166097"
     },
     {
       "id": "autohero_BZ38096",
@@ -1527,7 +1527,7 @@
       "budget_class": "warning",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:35.054324"
+      "updated_at": "2026-11-09T12:14:23.342034"
     },
     {
       "id": "2171a7b7-e3cc-4fec-be58-64f02c0a0972",
@@ -1570,7 +1570,7 @@
       "budget_class": "info",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:02.412941"
+      "updated_at": "2026-11-09T12:13:48.523236"
     },
     {
       "id": "60033328-594f-45ff-8458-3ef921c780f2",
@@ -1613,7 +1613,7 @@
       "budget_class": "success",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:01.492311"
+      "updated_at": "2026-11-09T12:13:47.166097"
     },
     {
       "id": "autohero_GC83183",
@@ -1656,7 +1656,7 @@
       "budget_class": "emerald",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:35.054443"
+      "updated_at": "2026-11-09T12:14:23.342136"
     },
     {
       "id": "a7c7b53f-0cd6-483e-b001-e9f3e4594bd6",
@@ -1699,7 +1699,7 @@
       "budget_class": "emerald",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:00.771189"
+      "updated_at": "2026-11-09T12:13:45.390949"
     },
     {
       "id": "c1838042-7c28-4916-87c3-a1a2c1320754",
@@ -1742,7 +1742,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:11:59.949246"
+      "updated_at": "2026-11-09T12:13:44.480512"
     },
     {
       "id": "9be59b0f-4dbd-4a61-9555-6f2339c2848a",
@@ -1785,7 +1785,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:03.181167"
+      "updated_at": "2026-11-09T12:13:49.519600"
     },
     {
       "id": "dc6ea669-56e7-4a4a-885d-e1df96a93d08",
@@ -1828,7 +1828,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:03.181167"
+      "updated_at": "2026-11-09T12:13:49.519600"
     },
     {
       "id": "e963be62-7221-4b0e-9a81-1ae6e1a8d28a",
@@ -1871,7 +1871,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:11:59.949246"
+      "updated_at": "2026-11-09T12:13:44.480512"
     },
     {
       "id": "f3fd2e5c-f26b-458f-9ee7-21a544f6820a",
@@ -1914,7 +1914,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:11:59.949246"
+      "updated_at": "2026-11-09T12:13:44.480512"
     },
     {
       "id": "e5a5d00b-1e47-41aa-b404-8194f98a262e",
@@ -1957,7 +1957,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:02.412941"
+      "updated_at": "2026-11-09T12:13:48.523236"
     },
     {
       "id": "4d3e0f2e-f294-45ce-9d39-4623434156c7",
@@ -2000,7 +2000,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:11:59.949246"
+      "updated_at": "2026-11-09T12:13:44.480512"
     },
     {
       "id": "e86d6082-ac4f-4976-bc00-0a953e0a891a",
@@ -2043,7 +2043,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:03.181167"
+      "updated_at": "2026-11-09T12:13:49.519600"
     },
     {
       "id": "39f02cde-095c-412b-8852-e79258440c29",
@@ -2086,7 +2086,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:11:59.949246"
+      "updated_at": "2026-11-09T12:13:44.480512"
     },
     {
       "id": "c55c3d87-79a3-4b34-bfcf-a1226d53dc08",
@@ -2129,7 +2129,7 @@
       "budget_class": "emerald",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:02.412941"
+      "updated_at": "2026-11-09T12:13:48.523236"
     },
     {
       "id": "autohero_VD39461",
@@ -2172,7 +2172,7 @@
       "budget_class": "info",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:35.054216"
+      "updated_at": "2026-11-09T12:14:23.341865"
     },
     {
       "id": "e5d3600e-f6f0-46b0-8400-f9509b7010cf",
@@ -2215,7 +2215,7 @@
       "budget_class": "emerald",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:00.771189"
+      "updated_at": "2026-11-09T12:13:45.390949"
     },
     {
       "id": "b00bc1b3-93b3-4c82-85fc-c0c8cae3df82",
@@ -2258,7 +2258,7 @@
       "budget_class": "emerald",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:00.771189"
+      "updated_at": "2026-11-09T12:13:45.390949"
     },
     {
       "id": "32b49c51-6485-48dd-93ba-5fd3f4c27ea9",
@@ -2301,7 +2301,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:00.771189"
+      "updated_at": "2026-11-09T12:13:45.390949"
     },
     {
       "id": "bd015f90-ab95-46c9-baa4-2b7727705c8e",
@@ -2344,7 +2344,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:02.412941"
+      "updated_at": "2026-11-09T12:13:48.523236"
     },
     {
       "id": "18fc2d97-d82b-4775-9681-2c1ed39479af",
@@ -2387,7 +2387,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:03.181167"
+      "updated_at": "2026-11-09T12:13:49.519600"
     },
     {
       "id": "0592ab42-23ce-4daa-b887-db00322ed1ab",
@@ -2430,7 +2430,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:00.771189"
+      "updated_at": "2026-11-09T12:13:45.390949"
     },
     {
       "id": "8e167487-0922-49c1-9edf-54ff60461b91",
@@ -2473,7 +2473,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:03.181167"
+      "updated_at": "2026-11-09T12:13:49.519600"
     },
     {
       "id": "autohero_LK80740",
@@ -2516,7 +2516,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:35.054288"
+      "updated_at": "2026-11-09T12:14:23.341996"
     },
     {
       "id": "fefde49c-18da-463c-9d98-9b14f8116203",
@@ -2559,7 +2559,7 @@
       "budget_class": "warning",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:03.181167"
+      "updated_at": "2026-11-09T12:13:49.519600"
     },
     {
       "id": "07d14656-dfc4-4442-9e83-0fb0de7448b3",
@@ -2602,7 +2602,7 @@
       "budget_class": "info",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:11:59.949246"
+      "updated_at": "2026-11-09T12:13:44.480512"
     },
     {
       "id": "c7821835-0045-4c3a-ab07-bc4971acea01",
@@ -2645,7 +2645,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:02.412941"
+      "updated_at": "2026-11-09T12:13:48.523236"
     },
     {
       "id": "ddcc5a32-f4b3-4f7d-80c8-4fd2db03124f",
@@ -2688,7 +2688,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:08.723328"
+      "updated_at": "2026-11-09T12:13:52.090478"
     },
     {
       "id": "972f7a56-9b13-4a02-b5a2-cb4665ccbb31",
@@ -2731,7 +2731,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:11:59.949246"
+      "updated_at": "2026-11-09T12:13:44.480512"
     },
     {
       "id": "7f9cf6d5-9218-40b8-94d4-d96fb5a5bfdc",
@@ -2774,7 +2774,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:02.412941"
+      "updated_at": "2026-11-09T12:13:48.523236"
     },
     {
       "id": "177a8712-1fbb-4b44-8739-0607462575ba",
@@ -2817,7 +2817,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:02.412941"
+      "updated_at": "2026-11-09T12:13:48.523236"
     },
     {
       "id": "77209552-9dd4-4c0f-a9e6-63d05515f0fe",
@@ -2860,7 +2860,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:02.412941"
+      "updated_at": "2026-11-09T12:13:48.523236"
     },
     {
       "id": "bed282d0-ddfb-4614-acb2-5561ed02f563",
@@ -2903,7 +2903,7 @@
       "budget_class": "emerald",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:11:59.949246"
+      "updated_at": "2026-11-09T12:13:44.480512"
     },
     {
       "id": "19d5dac2-6414-4b56-bce0-0440e2910185",
@@ -2946,7 +2946,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:11:59.949246"
+      "updated_at": "2026-11-09T12:13:44.480512"
     },
     {
       "id": "9ed2f0ed-0447-4192-a343-ae8be62569bb",
@@ -2989,7 +2989,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:04.182466"
+      "updated_at": "2026-11-09T12:13:50.386085"
     },
     {
       "id": "d51f2ae4-0d1a-4b11-99d4-f53688c973bc",
@@ -3032,7 +3032,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:00.771189"
+      "updated_at": "2026-11-09T12:13:45.390949"
     },
     {
       "id": "8490026c-c93d-42e6-b7b8-7f4342e1f7c8",
@@ -3075,7 +3075,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:11:59.949246"
+      "updated_at": "2026-11-09T12:13:44.480512"
     },
     {
       "id": "6610410b-dd5c-4ff9-b79b-da17757b92ca",
@@ -3118,7 +3118,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:04.182466"
+      "updated_at": "2026-11-09T12:13:50.386085"
     },
     {
       "id": "3fc78ec0-3846-4084-ae28-d9d63dbe19fc",
@@ -3161,7 +3161,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:04.182466"
+      "updated_at": "2026-11-09T12:13:50.386085"
     },
     {
       "id": "2856ade6-f54d-45f4-8412-59e3214f54b9",
@@ -3204,7 +3204,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:04.182466"
+      "updated_at": "2026-11-09T12:13:50.386085"
     },
     {
       "id": "97e7938a-70ee-428c-9673-0fec04f78437",
@@ -3247,7 +3247,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:04.182466"
+      "updated_at": "2026-11-09T12:13:50.386085"
     },
     {
       "id": "4e7215b4-1cab-4011-8f8d-ebe3b0fe0639",
@@ -3290,7 +3290,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:04.182466"
+      "updated_at": "2026-11-09T12:13:50.386085"
     },
     {
       "id": "47f3046a-1822-40e4-990a-cf929548d894",
@@ -3333,7 +3333,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:04.182466"
+      "updated_at": "2026-11-09T12:13:50.386085"
     },
     {
       "id": "0b8bc357-620b-4f69-88f9-33b62d050569",
@@ -3376,7 +3376,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:00.771189"
+      "updated_at": "2026-11-09T12:13:45.390949"
     },
     {
       "id": "45702fb4-ec7e-4fe3-b15c-cf8d98b5fdd1",
@@ -3419,7 +3419,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:03.181167"
+      "updated_at": "2026-11-09T12:13:49.519600"
     },
     {
       "id": "autohero_LU11080",
@@ -3462,7 +3462,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:35.054371"
+      "updated_at": "2026-11-09T12:14:23.342071"
     },
     {
       "id": "48b38fa3-5889-41e9-9e98-99212dc81036",
@@ -3505,7 +3505,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:11:59.949246"
+      "updated_at": "2026-11-09T12:13:44.480512"
     },
     {
       "id": "aa435e26-1a51-4da1-9c3a-577e83bd21be",
@@ -3548,7 +3548,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:00.771189"
+      "updated_at": "2026-11-09T12:13:45.390949"
     },
     {
       "id": "e5a26585-cca9-44be-a4c8-5ca1caf6822d",
@@ -3591,7 +3591,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:03.181167"
+      "updated_at": "2026-11-09T12:13:49.519600"
     },
     {
       "id": "autohero_YA18945",
@@ -3634,7 +3634,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:35.054409"
+      "updated_at": "2026-11-09T12:14:23.342106"
     },
     {
       "id": "8561c549-f0bb-4f73-833f-ddd244d9847e",
@@ -3677,7 +3677,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:03.181167"
+      "updated_at": "2026-11-09T12:13:49.519600"
     },
     {
       "id": "880d53fb-c2bc-453a-8263-f87fffafaebc",
@@ -3720,7 +3720,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:00.771189"
+      "updated_at": "2026-11-09T12:13:45.390949"
     },
     {
       "id": "f018c9d3-5f62-4ae5-9843-f6dd9e332432",
@@ -3763,7 +3763,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:11:59.949246"
+      "updated_at": "2026-11-09T12:13:44.480512"
     },
     {
       "id": "80880808-8dad-4a83-b0ca-83a397727d71",
@@ -3806,7 +3806,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:02.412941"
+      "updated_at": "2026-11-09T12:13:48.523236"
     },
     {
       "id": "d9bdf9bd-e276-4d2a-b2c2-f4cbf6d3ce81",
@@ -3849,7 +3849,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:03.181167"
+      "updated_at": "2026-11-09T12:13:49.519600"
     },
     {
       "id": "8ae2238c-bf13-4426-bfac-a6de567087c3",
@@ -3892,7 +3892,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:03.181167"
+      "updated_at": "2026-11-09T12:13:49.519600"
     },
     {
       "id": "55f5283f-65de-4972-baa3-ed4bfaecf6c0",
@@ -3935,7 +3935,7 @@
       "budget_class": "danger",
       "is_new": false,
       "price_drop": 0,
-      "updated_at": "2026-11-09T13:12:03.181167"
+      "updated_at": "2026-11-09T12:13:49.519600"
     }
   ]
 }
