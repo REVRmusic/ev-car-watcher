@@ -6,9 +6,14 @@
     "nom_offre": "Prêt Éco-responsable Véhicule Propre (4,35 % TAEG fixe avec justificatif)",
     "duree_mois": 72,
     "mensualite_max": 300.0,
-    "apport_min": 5000.0,
-    "apport_max": 7000.0,
+    "apport_base_dj": 5023.0,
+    "apport_standard": 7000.0,
+    "apport_mixify_10bars": 9643.0,
+    "apport_mixify_cible": 11625.0,
+    "apport_min": 7000.0,
+    "apport_max": 11625.0,
     "cout_rapatriement_estime": 350.0,
+    "modele_coup_de_coeur": "peugeot_e3008_gt",
     "echeance_projet": "Mai 2027 (Restitution contrat LOA Peugeot e-2008)"
   },
   "criteria": {
@@ -193,12 +198,13 @@
       "min_year": 2024,
       "keywords_must": ["gt", "73", "210"],
       "keywords_exclude": ["allure", "hybrid", "plug-in", "essence", "diesel", "puretech", "blue-hdi"],
-      "priority": 3,
+      "priority": 1,
+      "is_dream_target": true,
       "trunk_liters": 520,
       "has_v2l": false,
       "has_kw_display": true,
       "has_pac": true,
-      "notes": "Nouvelle génération e-3008 (2024+) 73 kWh (157 kW / 210 ch) en finition GT avec écran panoramique 21\", coffre 520 L et PAC standard."
+      "notes": "Coup de cœur & Cible Prioritaire : e-3008 GT (2024+) 73 kWh (157 kW / 210 ch), écran panoramique 21\", coffre 520 L. Financement via apport Mixify (11 625 €)."
     }
   ]
 }

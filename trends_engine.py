@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Trends Engine - Analyse statistique, décote en temps réel et projection jusqu'en Mai 2027.
-Échéance cible : 23 Mai 2027 (Restitution contrat LOA Peugeot e-2008).
+Échéance cible : 23 Mai 2027 (Restitution contrat LOA Peugeot e-2008 de Bastien).
+Intégration du plan d'apport Mixify / Jean (11 625 € : 5 023 € résidences DJ + 6 602 € Mixify).
 """
 
 import json
@@ -26,14 +27,16 @@ def compute_model_statistics_and_forecast(all_matched, config):
     annual_rate = financial.get("taux_taeg_annuel", 0.0435)
     duration = financial.get("duree_mois", 72)
     mens_max = financial.get("mensualite_max", 300.0)
-    apport_7k = financial.get("apport_max", 7000.0)
-    apport_5k = financial.get("apport_min", 5000.0)
+    apport_7k = financial.get("apport_standard", 7000.0)
+    apport_5k = financial.get("apport_base_dj", 5023.0)
+    apport_mixify = financial.get("apport_mixify_cible", 11625.0)
     repat_cost = financial.get("cout_rapatriement_estime", 350.0)
     
     # Capacité d'emprunt max BoursoBank (mensualité 300 € sur 72 mois à 4,35 %)
     r = annual_rate / 12.0
     loan_max = mens_max * (1.0 - (1.0 + r)**(-duration)) / r
-    budget_max_vehicle = loan_max + apport_7k - repat_cost # Prix max du véhicule clé en main
+    budget_max_standard = loan_max + apport_7k - repat_cost # Plafond standard (~25 631 €)
+    budget_max_mixify = loan_max + apport_mixify - repat_cost # Plafond Mixify (~30 256 €)
 
     # Taux annuel de décote estimé pour les VE d'occasion récents (12%/an)
     annual_depreciation = 0.12
@@ -81,38 +84,49 @@ def compute_model_statistics_and_forecast(all_matched, config):
         price_mai_2027 = forecast_min_prices[-1]
         loan_mai_7k = max(0, price_mai_2027 + repat_cost - apport_7k)
         loan_mai_5k = max(0, price_mai_2027 + repat_cost - apport_5k)
+        loan_mai_mixify = max(0, price_mai_2027 + repat_cost - apport_mixify)
+        
         mens_mai_2027_7k = calculate_monthly_payment(loan_mai_7k, annual_rate, duration)
         mens_mai_2027_5k = calculate_monthly_payment(loan_mai_5k, annual_rate, duration)
+        mens_mai_2027_mixify = calculate_monthly_payment(loan_mai_mixify, annual_rate, duration)
 
-        # Délai d'accessibilité au budget
-        if min_p <= budget_max_vehicle:
+        # Mensualités actuelles
+        loan_cur_mixify = max(0, min_p + repat_cost - apport_mixify)
+        min_mens_mixify = calculate_monthly_payment(loan_cur_mixify, annual_rate, duration)
+
+        # Délai d'accessibilité au budget standard (7k€)
+        if min_p <= budget_max_standard:
             months_to_budget = 0
             budget_horizon = "Immédiat (Déjà dans le budget)"
             horizon_class = "success"
         else:
-            months_to_budget = math.ceil(math.log(budget_max_vehicle / min_p) / math.log(1 - annual_depreciation) * 12)
+            months_to_budget = math.ceil(math.log(budget_max_standard / min_p) / math.log(1 - annual_depreciation) * 12)
             if months_to_budget <= 6:
                 budget_horizon = f"Accessible d'ici Mai 2027 (~{months_to_budget} mois)"
                 horizon_class = "warning"
-            elif months_to_budget <= 12:
-                budget_horizon = f"D'ici ~{months_to_budget} mois (Post-Mai 2027)"
-                horizon_class = "info"
             else:
                 budget_horizon = f"D'ici ~{months_to_budget} mois"
                 horizon_class = "secondary"
 
-        # Statut spécifique Mai 2027
-        if min_p <= budget_max_vehicle:
-            status_mai_2027 = "🔥 Déjà dans le budget"
+        # Statut spécifique Mai 2027 avec apport Mixify (11 625 €)
+        if m_id == "peugeot_e3008_gt":
+            if mens_mai_2027_mixify <= mens_max:
+                status_mai_2027 = "👑 Cible Mixify Validée (≤ 300€/m) !"
+                status_mai_class = "emerald"
+            else:
+                status_mai_2027 = "⚡ Objectif Mixify en cours"
+                status_mai_class = "warning"
+        elif min_p <= budget_max_standard:
+            status_mai_2027 = "🔥 Déjà dans le budget (apport 7k€)"
             status_mai_class = "success"
-        elif mens_mai_2027_7k <= mens_max:
-            status_mai_2027 = "🎯 Dans le budget en Mai 2027"
+        elif mens_mai_2027_mixify <= mens_max:
+            status_mai_2027 = "🎯 Dans le budget Mixify (11.6k€)"
             status_mai_class = "emerald"
-        elif mens_mai_2027_7k <= (mens_max + 25.0):
-            status_mai_2027 = "⚡ Négociable en Mai 2027"
-            status_mai_class = "warning"
+        elif mens_mai_2027_7k <= mens_max:
+            status_mai_2027 = "🎯 Dans le budget standard en Mai"
+            status_mai_class = "info"
         else:
-            status_mai_2027 = "⏳ Hors budget en Mai 2027"
+            status_mai_2027 = "⏳ Décote en cours"
             status_mai_class = "secondary"
 
         stats_by_model[m_id] = {
@@ -127,6 +141,7 @@ def compute_model_statistics_and_forecast(all_matched, config):
             "avg_km": avg_km,
             "min_mens_7k": min([x["mens_7k"] for x in m_listings]),
             "min_mens_5k": min([x["mens_5k"] for x in m_listings]),
+            "min_mens_mixify": min_mens_mixify,
             "months_to_budget": months_to_budget,
             "budget_horizon": budget_horizon,
             "horizon_class": horizon_class,
@@ -137,6 +152,7 @@ def compute_model_statistics_and_forecast(all_matched, config):
             "price_mai_2027": price_mai_2027,
             "mens_mai_2027_7k": mens_mai_2027_7k,
             "mens_mai_2027_5k": mens_mai_2027_5k,
+            "mens_mai_2027_mixify": mens_mai_2027_mixify,
             "status_mai_2027": status_mai_2027,
             "status_mai_class": status_mai_class,
         }
@@ -157,6 +173,8 @@ def compute_model_statistics_and_forecast(all_matched, config):
     snapshot = {
         "timestamp": now_iso,
         "date": now_date,
+        "budget_ceiling_standard": round(budget_max_standard, 2),
+        "budget_ceiling_mixify": round(budget_max_mixify, 2),
         "models": {
             m_id: {
                 "min": data["min_price"],
@@ -165,7 +183,8 @@ def compute_model_statistics_and_forecast(all_matched, config):
                 "count": data["count"],
                 "in_budget": data["in_budget_count"],
                 "price_mai_2027": data["price_mai_2027"],
-                "mens_mai_2027_7k": data["mens_mai_2027_7k"]
+                "mens_mai_2027_7k": data["mens_mai_2027_7k"],
+                "mens_mai_2027_mixify": data["mens_mai_2027_mixify"]
             }
             for m_id, data in stats_by_model.items()
         }
@@ -183,7 +202,8 @@ def compute_model_statistics_and_forecast(all_matched, config):
 
     return {
         "stats_by_model": stats_by_model,
-        "budget_ceiling_vehicle": round(budget_max_vehicle, 2),
+        "budget_ceiling_standard": round(budget_max_standard, 2),
+        "budget_ceiling_mixify": round(budget_max_mixify, 2),
         "forecast_labels": forecast_labels,
         "snapshots_history": snapshots
     }

@@ -136,8 +136,9 @@ def evaluate_and_filter(raw_listings, model_conf, financial_conf, criteria_conf,
     annual_rate = financial_conf["taux_taeg_annuel"] # 4.35% BoursoBank
     duration = financial_conf["duree_mois"] # 72 mois
     mens_max = financial_conf["mensualite_max"] # 300.0 €
-    apport_5k = financial_conf["apport_min"] # 5000.0 €
-    apport_7k = financial_conf["apport_max"] # 7000.0 €
+    apport_5k = financial_conf.get("apport_base_dj", 5023.0)
+    apport_7k = financial_conf.get("apport_standard", 7000.0)
+    apport_mixify = financial_conf.get("apport_mixify_cible", 11625.0)
     repat_cost = financial_conf.get("cout_rapatriement_estime", 350.0)
 
     max_km = criteria_conf.get("max_km", 100000)
@@ -220,13 +221,18 @@ def evaluate_and_filter(raw_listings, model_conf, financial_conf, criteria_conf,
         # 7. Calculs financiers précis (BoursoBank 4,35 % sur 72 mois)
         total_price_key_in_hand = price_raw + repat_cost
         
-        # Simulation avec apport 5 000 €
+        # Simulation avec apport 5 023 € (DJ base)
         loan_5k = max(0, total_price_key_in_hand - apport_5k)
         mens_5k = calculate_monthly_payment(loan_5k, annual_rate, duration)
 
-        # Simulation avec apport 7 000 €
+        # Simulation avec apport 7 000 € (Standard)
         loan_7k = max(0, total_price_key_in_hand - apport_7k)
         mens_7k = calculate_monthly_payment(loan_7k, annual_rate, duration)
+
+        # Simulation avec apport Cible Mixify (11 625 € : 5 023 € DJ + 6 602 € Mixify 15 bars)
+        apport_mixify = financial_conf.get("apport_mixify_cible", 11625.0)
+        loan_mixify = max(0, total_price_key_in_hand - apport_mixify)
+        mens_mixify = calculate_monthly_payment(loan_mixify, annual_rate, duration)
 
         # Statut budgétaire
         if mens_5k <= mens_max:
@@ -237,7 +243,11 @@ def evaluate_and_filter(raw_listings, model_conf, financial_conf, criteria_conf,
             budget_status = "WITHIN_BUDGET" # Rentrant avec 7k€ d'apport
             budget_badge = "Dans le budget (apport 7k€)"
             budget_class = "info"
-        elif mens_7k <= (mens_max + 25.0): # Dépasse de moins de 25€/mois (~1600€)
+        elif mens_mixify <= mens_max:
+            budget_status = "WITHIN_MIXIFY" # Rentrant avec l'apport Mixify 11 625 € !
+            budget_badge = "🎯 Objectif Mixify (11.6k€)"
+            budget_class = "emerald"
+        elif mens_mixify <= (mens_max + 25.0):
             budget_status = "NEGOTIABLE"
             budget_badge = "Négociable (< +25€/m)"
             budget_class = "warning"
@@ -250,14 +260,18 @@ def evaluate_and_filter(raw_listings, model_conf, financial_conf, criteria_conf,
         score = 4.0
 
         # Note Budget
-        if budget_status == "EXCELLENT_DEAL":
+        if budget_status in ["EXCELLENT_DEAL", "WITHIN_BUDGET"]:
             score += 2.5
-        elif budget_status == "WITHIN_BUDGET":
-            score += 1.5
+        elif budget_status == "WITHIN_MIXIFY":
+            score += 2.0
         elif budget_status == "NEGOTIABLE":
             score += 0.5
         else:
-            score -= 2.0
+            score -= 1.5
+
+        # Bonus Coup de Cœur & Cible prioritaire Mixify (Peugeot e-3008 GT)
+        if model_conf.get("id") == "peugeot_e3008_gt":
+            score += 1.5
 
         # Bonus véhicules récents (2023 - 2025)
         if year:
@@ -348,6 +362,7 @@ def evaluate_and_filter(raw_listings, model_conf, financial_conf, criteria_conf,
             "total_price_key_in_hand": total_price_key_in_hand,
             "mens_5k": mens_5k,
             "mens_7k": mens_7k,
+            "mens_mixify": mens_mixify,
             "km": km,
             "year": year,
             "power_kw": kw,

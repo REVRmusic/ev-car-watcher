@@ -3,6 +3,7 @@
 Générateur de tableau de bord HTML haut de gamme pour la veille des véhicules électriques.
 Design moderne, épuré, responsive, avec observatoire des décotes et courbes prévisionnelles arrêtées en Mai 2027.
 Échéance cible : 23 Mai 2027 (Restitution LOA Peugeot e-2008 de Bastien / LM MUSIC).
+Intégration du plan d'apport Mixify / Jean : 11 625 € d'apport cible (5 023 € résidences DJ + 6 602 € Mixify).
 """
 
 import json
@@ -14,7 +15,8 @@ def build_html(results_data, config):
     criteria = config.get("criteria", {})
     trends = results_data.get("trends", {})
     stats_by_model = trends.get("stats_by_model", {})
-    budget_ceiling = trends.get("budget_ceiling_vehicle", 23600.0)
+    budget_ceiling_standard = trends.get("budget_ceiling_standard", 23600.0)
+    budget_ceiling_mixify = trends.get("budget_ceiling_mixify", 30255.0)
     models_config = {m["id"]: m for m in config.get("models", [])}
     
     generated_at = datetime.fromisoformat(results_data.get("generated_at", datetime.now().isoformat())).strftime("%d/%m/%Y à %H:%M")
@@ -22,12 +24,12 @@ def build_html(results_data, config):
     total_listings = len(listings)
     in_budget_count = results_data.get("in_budget_count", 0)
     negotiable_count = results_data.get("negotiable_count", 0)
-    new_count = results_data.get("new_count", 0)
-    price_drop_count = results_data.get("price_drop_count", 0)
-    sweet_spot_count = len([x for x in listings if x.get("is_sweet_spot") and x.get("budget_status") in ["EXCELLENT_DEAL", "WITHIN_BUDGET"]])
+    mixify_valid_count = len([x for x in listings if x.get("mens_mixify", 999) <= 300.0])
+    sweet_spot_count = len([x for x in listings if x.get("is_sweet_spot") and (x.get("budget_status") in ["EXCELLENT_DEAL", "WITHIN_BUDGET", "WITHIN_MIXIFY"])])
     autohero_count = len([x for x in listings if x.get("source") == "Autohero"])
+    e3008_count = len([x for x in listings if x.get("model_id") == "peugeot_e3008_gt"])
 
-    # Données JSON pour les scripts clients (annonces et statistiques prévisionnelles)
+    # Données JSON pour les scripts clients
     listings_json = json.dumps(listings, ensure_ascii=False)
     trends_json = json.dumps(trends, ensure_ascii=False)
     models_json = json.dumps(config.get("models", []), ensure_ascii=False)
@@ -37,7 +39,7 @@ def build_html(results_data, config):
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Observatoire & Veille Véhicules Électriques — Cap Mai 2027</title>
+  <title>Observatoire & Veille Véhicules Électriques — Plan Mixify & Cap Mai 2027</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -110,7 +112,7 @@ def build_html(results_data, config):
     }}
 
     .title-group h1 {{
-      font-size: 2rem;
+      font-size: 2.05rem;
       font-weight: 800;
       letter-spacing: -0.03em;
       background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
@@ -157,8 +159,8 @@ def build_html(results_data, config):
 
     /* BANDEAU SIMULATION FINANCIÈRE */
     .financial-banner {{
-      background: linear-gradient(135deg, rgba(30, 58, 138, 0.25) 0%, rgba(17, 24, 39, 0.6) 100%);
-      border: 1px solid rgba(59, 130, 246, 0.3);
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(30, 58, 138, 0.25) 50%, rgba(17, 24, 39, 0.8) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.35);
       border-radius: 1rem;
       padding: 1.25rem 1.5rem;
       margin-bottom: 2rem;
@@ -182,7 +184,7 @@ def build_html(results_data, config):
     }}
 
     .fin-item span:first-child {{
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: var(--text-muted);
       text-transform: uppercase;
       font-weight: 600;
@@ -369,6 +371,11 @@ def build_html(results_data, config):
       background-color: rgba(59, 130, 246, 0.04);
     }}
 
+    tr.highlight-target td {{
+      background-color: rgba(16, 185, 129, 0.06);
+      border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+    }}
+
     .cell-model {{
       font-weight: 700;
       color: #ffffff;
@@ -395,9 +402,10 @@ def build_html(results_data, config):
     }}
 
     .tag-horizon.emerald {{
-      background-color: rgba(16, 185, 129, 0.2);
+      background-color: rgba(16, 185, 129, 0.25);
       color: #10b981;
       border: 1px solid #10b981;
+      font-weight: 800;
     }}
 
     .tag-horizon.warning {{
@@ -459,7 +467,7 @@ def build_html(results_data, config):
 
     .chart-canvas-wrap {{
       position: relative;
-      height: 320px;
+      height: 330px;
       width: 100%;
     }}
 
@@ -510,6 +518,12 @@ def build_html(results_data, config):
       box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
     }}
 
+    .filter-btn.mixify-btn.active {{
+      background-color: var(--accent-emerald);
+      border-color: var(--accent-emerald);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+    }}
+
     .filter-btn.sweet-btn.active {{
       background-color: var(--accent-cyan);
       border-color: var(--accent-cyan);
@@ -539,18 +553,19 @@ def build_html(results_data, config):
       border-color: rgba(59, 130, 246, 0.4);
     }}
 
-    .car-card.sweet-card {{
-      border-color: rgba(6, 182, 212, 0.4);
+    .car-card.target-dream-card {{
+      border-color: rgba(16, 185, 129, 0.5);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
     }}
 
-    .car-card.sweet-card::before {{
+    .car-card.target-dream-card::before {{
       content: '';
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-emerald));
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-emerald), var(--accent-cyan));
       z-index: 2;
     }}
 
@@ -608,6 +623,12 @@ def build_html(results_data, config):
       background-color: rgba(59, 130, 246, 0.85);
       color: #ffffff;
       border: 1px solid #3b82f6;
+    }}
+
+    .badge-emerald {{
+      background-color: rgba(16, 185, 129, 0.9);
+      color: #ffffff;
+      border: 1px solid #34d399;
     }}
 
     .badge-warning {{
@@ -710,7 +731,7 @@ def build_html(results_data, config):
     /* FINANCING SIMULATION BOX */
     .fin-box {{
       background: linear-gradient(145deg, rgba(15, 23, 42, 0.7), rgba(30, 41, 59, 0.5));
-      border: 1px solid rgba(59, 130, 246, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.25);
       border-radius: 0.75rem;
       padding: 0.85rem;
       display: grid;
@@ -724,7 +745,7 @@ def build_html(results_data, config):
     }}
 
     .fin-box-label {{
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       text-transform: uppercase;
       font-weight: 600;
       color: var(--text-muted);
@@ -819,8 +840,8 @@ def build_html(results_data, config):
     <header>
       <div class="header-top">
         <div class="title-group">
-          <h1>⚡ EV Car Watcher — Cap Mai 2027</h1>
-          <p>Surveillance du marché des véhicules électriques d'occasion & Projection de décote BoursoBank pour Bastien (LM MUSIC)</p>
+          <h1>⚡ EV Car Watcher — Objectif Peugeot e-3008 GT</h1>
+          <p>Surveillance du marché des véhicules électriques &amp; Projection financière Mixify (11 625 € d'apport cible) vers Mai 2027</p>
         </div>
         <div class="meta-badge">
           <span class="dot"></span>
@@ -828,32 +849,36 @@ def build_html(results_data, config):
         </div>
       </div>
 
-      <!-- BANDEAU SIMULATION FINANCIÈRE BOURSOBANK -->
+      <!-- BANDEAU SIMULATION FINANCIÈRE MIXIFY & BOURSOBANK -->
       <div class="financial-banner">
         <div class="financial-details">
           <div class="fin-item">
-            <span>Banque & Offre</span>
+            <span>Banque &amp; Offre</span>
             <span>{financial.get('banque', 'BoursoBank')} (Prêt Véhicule Propre)</span>
           </div>
           <div class="fin-item">
-            <span>Taux Fixe TAEG</span>
-            <span>{financial.get('taux_taeg_annuel', 0.0435)*100:.2f} % (Avec Justificatif)</span>
-          </div>
-          <div class="fin-item">
-            <span>Durée Amortissable</span>
-            <span>{financial.get('duree_mois', 72)} mois (6 ans)</span>
+            <span>Taux &amp; Durée</span>
+            <span>{financial.get('taux_taeg_annuel', 0.0435)*100:.2f} % fixe · {financial.get('duree_mois', 72)} mois</span>
           </div>
           <div class="fin-item">
             <span>Mensualité Cible</span>
             <span style="color:#34d399">≤ {financial.get('mensualite_max', 300):.0f} € / mois</span>
           </div>
           <div class="fin-item">
-            <span>Apport Prévu</span>
-            <span>5 000 € à 7 000 €</span>
+            <span>Épargne DJ Base</span>
+            <span>~5 023 €</span>
           </div>
           <div class="fin-item">
-            <span>Date Butoir Projet</span>
-            <span style="color:#f59e0b">23 Mai 2027 (Restitution LOA 2008)</span>
+            <span>Objectif Mixify (15 bars)</span>
+            <span style="color:#34d399">+6 602 € net</span>
+          </div>
+          <div class="fin-item">
+            <span>Apport Total Cible</span>
+            <span style="color:#10b981; font-size:1.15rem;">11 625 €</span>
+          </div>
+          <div class="fin-item">
+            <span>Échéance Projet</span>
+            <span style="color:#f59e0b">Mai 2027 (Restitution e-2008)</span>
           </div>
         </div>
 
@@ -874,24 +899,24 @@ def build_html(results_data, config):
         <span class="kpi-subtext">Multi-sources ({total_listings - autohero_count} AutoScout24 + {autohero_count} Autohero)</span>
       </div>
       <div class="kpi-card emerald">
-        <span class="kpi-label">Dans le Budget Actuel</span>
-        <span class="kpi-value">{in_budget_count}</span>
-        <span class="kpi-subtext">≤ 300 €/mois (BoursoBank 4,35 % sur 72m)</span>
-      </div>
-      <div class="kpi-card cyan">
-        <span class="kpi-label">Cible Idéale (Sweet Spot)</span>
-        <span class="kpi-value">{sweet_spot_count}</span>
-        <span class="kpi-subtext">2023–2025 & ≤ 60 000 km & dans le budget</span>
-      </div>
-      <div class="kpi-card amber">
-        <span class="kpi-label">Négociables Immédiates</span>
-        <span class="kpi-value">{negotiable_count}</span>
-        <span class="kpi-subtext">Dépassement &lt; 25 €/mois (&lt; 1 600 € d'effort)</span>
+        <span class="kpi-label">Validées Plan Mixify</span>
+        <span class="kpi-value">{mixify_valid_count}</span>
+        <span class="kpi-subtext">≤ 300 €/m avec apport Mixify 11 625 €</span>
       </div>
       <div class="kpi-card purple">
-        <span class="kpi-label">Horizon Échéance LOA</span>
-        <span class="kpi-value" style="color:#c084fc">Mai 2027</span>
-        <span class="kpi-subtext">Fin contrat Peugeot e-2008 (reste 6 mois)</span>
+        <span class="kpi-label">Peugeot e-3008 GT</span>
+        <span class="kpi-value" style="color:#c084fc">{e3008_count}</span>
+        <span class="kpi-subtext">Dès 28 990 € · Mensualité Mixify : 280 €/m</span>
+      </div>
+      <div class="kpi-card cyan">
+        <span class="kpi-label">Plafond Clé en Main</span>
+        <span class="kpi-value" style="color:#22d3ee">{budget_ceiling_mixify:,.0f} €</span>
+        <span class="kpi-subtext">Capacité d'achat avec 11 625 € d'apport</span>
+      </div>
+      <div class="kpi-card amber">
+        <span class="kpi-label">Dans Budget Standard</span>
+        <span class="kpi-value">{in_budget_count}</span>
+        <span class="kpi-subtext">≤ 300 €/m avec apport standard 7k€</span>
       </div>
     </div>
 
@@ -899,8 +924,8 @@ def build_html(results_data, config):
     <section class="observatory-section">
       <div class="section-header">
         <div>
-          <h2 class="section-title">📊 Observatoire de Marché & Trajectoire vers Mai 2027</h2>
-          <p class="section-subtitle">Suivi des prix réels constatés et projections mathématiques jusqu'à l'échéance de votre LOA le 23 mai 2027 (Plafond clé en main : {budget_ceiling:,.0f} €)</p>
+          <h2 class="section-title">📊 Observatoire de Marché &amp; Trajectoire vers Mai 2027</h2>
+          <p class="section-subtitle">Projection mathématique jusqu'à l'échéance LOA du 23 mai 2027 · Comparaison Apport Standard (7k€) vs Apport Cible Mixify (11.6k€)</p>
         </div>
       </div>
 
@@ -909,12 +934,12 @@ def build_html(results_data, config):
         <table class="trends-table">
           <thead>
             <tr>
-              <th>Modèle & Atouts Clés (DJ / Logistique)</th>
+              <th>Modèle &amp; Atouts Clés (DJ / Logistique)</th>
               <th>Annonces</th>
               <th>Prix Min Actuel</th>
-              <th>Prix Médian</th>
               <th>Prix Estimé Mai 2027</th>
-              <th>Mensualité Mai 2027 (Apport 7k€)</th>
+              <th>Mensualité Standard (7k€)</th>
+              <th>Mensualité Mixify Cible (11.6k€)</th>
               <th>Statut Mai 2027</th>
               <th>Accès Plateformes</th>
             </tr>
@@ -927,12 +952,17 @@ def build_html(results_data, config):
         min_p = f"{stats['min_price']:,} €".replace(",", " ")
         med_p = f"{stats['median_price']:,} €".replace(",", " ")
         p_mai = f"{stats.get('price_mai_2027', 0):,} €".replace(",", " ")
-        mens_mai = f"{stats.get('mens_mai_2027_7k', 0)} €/m"
+        mens_mai_7k = f"{stats.get('mens_mai_2027_7k', 0)} €/m"
+        mens_mai_mixify = f"{stats.get('mens_mai_2027_mixify', 0)} €/m"
         st_mai = stats.get('status_mai_2027', 'En cours')
         st_class = stats.get('status_mai_class', 'info')
         
-        # Badges d'atouts spécifiques Bastien / DJ
+        is_highlight = (m_id == "peugeot_e3008_gt")
+        row_class = "highlight-target" if is_highlight else ""
+
         features = []
+        if is_highlight:
+            features.append("👑 CIBLE PRIORITAIRE MIXIFY")
         if m_conf.get("trunk_liters"):
             features.append(f"📦 {m_conf['trunk_liters']} L")
         if m_conf.get("has_v2l"):
@@ -948,16 +978,16 @@ def build_html(results_data, config):
         as_url = m_conf.get("url", "#")
 
         html += f"""
-            <tr>
+            <tr class="{row_class}">
               <td>
-                <div class="cell-model">{stats['model_name']}</div>
-                <div style="font-size:0.75rem; color:#9ca3af; margin-top:2px;">{feat_str}</div>
+                <div class="cell-model" style="{'color:#34d399; font-size:0.95rem;' if is_highlight else ''}">{stats['model_name']}</div>
+                <div style="font-size:0.75rem; color:{'#34d399' if is_highlight else '#9ca3af'}; margin-top:2px;">{feat_str}</div>
               </td>
               <td class="cell-mono">{stats['count']}</td>
               <td class="cell-mono" style="color:#34d399; font-weight:700;">{min_p}</td>
-              <td class="cell-mono">{med_p}</td>
               <td class="cell-mono" style="color:#60a5fa; font-weight:700;">{p_mai}</td>
-              <td class="cell-mono" style="font-weight:700; color:{'#34d399' if stats.get('mens_mai_2027_7k', 999) <= 300 else '#fbbf24'};">{mens_mai}</td>
+              <td class="cell-mono" style="color:{'#34d399' if stats.get('mens_mai_2027_7k', 999) <= 300 else '#94a3b8'};">{mens_mai_7k}</td>
+              <td class="cell-mono" style="font-weight:800; color:{'#34d399' if stats.get('mens_mai_2027_mixify', 999) <= 300 else '#fbbf24'};">{mens_mai_mixify}</td>
               <td><span class="tag-horizon {st_class}">{st_mai}</span></td>
               <td>
                 <div style="display:flex; gap:0.35rem;">
@@ -976,11 +1006,11 @@ def build_html(results_data, config):
 
       <!-- GRAPHIQUES INTERACTIFS -->
       <div class="charts-grid">
-        <!-- COURBE PRÉVISIONNELLE ARRÊTÉE EN MAI 2027 -->
+        <!-- COURBE PRÉVISIONNELLE ARRÊTÉE EN MAI 2027 AVEC PLAFONDS STANDARD ET MIXIFY -->
         <div class="chart-card">
           <div class="chart-title">
-            <span>📈 Courbes Prévisionnelles de Décote (Cap Mai 2027)</span>
-            <span class="chart-legend-hint">Échéance : 23 Mai 2027 (Restitution LOA e-2008)</span>
+            <span>📈 Courbes de Décote &amp; Plafonds de Budget (Cap Mai 2027)</span>
+            <span class="chart-legend-hint">Ligne verte : Plafond Mixify (30 255 €)</span>
           </div>
           <div class="chart-canvas-wrap">
             <canvas id="depreciationChart"></canvas>
@@ -990,7 +1020,7 @@ def build_html(results_data, config):
         <!-- POSITIONNEMENT ACTUEL PAR MODÈLE -->
         <div class="chart-card">
           <div class="chart-title">
-            <span>⚖️ Prix Minimum Actuel vs Plafond Budget Clé en Main</span>
+            <span>⚖️ Prix Minimum Actuel vs Plafonds (Standard &amp; Mixify)</span>
           </div>
           <div class="chart-canvas-wrap">
             <canvas id="budgetComparisonChart"></canvas>
@@ -1004,9 +1034,9 @@ def build_html(results_data, config):
       <div class="filters-row">
         <span style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-right:0.5rem;">Statut :</span>
         <button class="filter-btn active" data-filter="all">Toutes ({total_listings})</button>
-        <button class="filter-btn sweet-btn" data-filter="sweet_spot">🎯 Cibles Idéales (2023+ &amp; ≤60k km &amp; Budget) ({sweet_spot_count})</button>
-        <button class="filter-btn" data-filter="budget_ok">✅ Dans le budget ({in_budget_count})</button>
-        <button class="filter-btn" data-filter="negotiable">⚡ Négociables ({negotiable_count})</button>
+        <button class="filter-btn mixify-btn" data-filter="mixify_ok">🎯 Validé Plan Mixify (≤ 300€/m) ({mixify_valid_count})</button>
+        <button class="filter-btn sweet-btn" data-filter="sweet_spot">🎯 Cibles Idéales (2023+ &amp; ≤60k km) ({sweet_spot_count})</button>
+        <button class="filter-btn" data-filter="budget_ok">✅ Dans budget standard (7k€) ({in_budget_count})</button>
         <button class="filter-btn" data-filter="pepite">💎 Pépites (Score ≥ 8/10)</button>
         <button class="filter-btn" data-filter="autohero">🛡️ Autohero Reconditionné ({autohero_count})</button>
       </div>
@@ -1014,6 +1044,7 @@ def build_html(results_data, config):
       <div class="filters-row" style="margin-top:0.25rem;">
         <span style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-right:0.5rem;">Modèle :</span>
         <button class="filter-btn model-btn active" data-model="all">Tous les modèles</button>
+        <button class="filter-btn model-btn" data-model="peugeot_e3008_gt" style="border-color:rgba(16,185,129,0.5); color:#34d399; font-weight:700;">👑 Peugeot e-3008 GT ({e3008_count})</button>
         <button class="filter-btn model-btn" data-model="skoda_enyaq_80">Skoda Enyaq 80</button>
         <button class="filter-btn model-btn" data-model="mustang_mache_er">Mustang Mach-E</button>
         <button class="filter-btn model-btn" data-model="megane_etech_iconic">Mégane E-Tech</button>
@@ -1022,7 +1053,6 @@ def build_html(results_data, config):
         <button class="filter-btn model-btn" data-model="kia_niro_ev_premium">Kia Niro EV</button>
         <button class="filter-btn model-btn" data-model="byd_seal_u_design">BYD Seal U</button>
         <button class="filter-btn model-btn" data-model="hyundai_kona_2_exec">Kona 2 Exec</button>
-        <button class="filter-btn model-btn" data-model="peugeot_e3008_gt">Peugeot e-3008 GT</button>
       </div>
     </div>
 
@@ -1047,8 +1077,10 @@ def build_html(results_data, config):
         if (currentModelFilter !== 'all' && item.model_id !== currentModelFilter) {{
           return false;
         }}
-        if (currentBudgetFilter === 'sweet_spot') {{
-          return item.is_sweet_spot && (item.budget_status === 'EXCELLENT_DEAL' || item.budget_status === 'WITHIN_BUDGET');
+        if (currentBudgetFilter === 'mixify_ok') {{
+          return (item.mens_mixify || 999) <= 300.0;
+        }} else if (currentBudgetFilter === 'sweet_spot') {{
+          return item.is_sweet_spot && (item.mens_mixify || 999) <= 300.0;
         }} else if (currentBudgetFilter === 'budget_ok') {{
           return item.budget_status === 'EXCELLENT_DEAL' || item.budget_status === 'WITHIN_BUDGET';
         }} else if (currentBudgetFilter === 'negotiable') {{
@@ -1073,22 +1105,30 @@ def build_html(results_data, config):
 
       filtered.forEach(car => {{
         const card = document.createElement('div');
-        card.className = car.is_sweet_spot ? 'car-card sweet-card' : 'car-card';
+        const isDreamTarget = car.model_id === 'peugeot_e3008_gt';
+        card.className = isDreamTarget ? 'car-card target-dream-card' : (car.is_sweet_spot ? 'car-card sweet-card' : 'car-card');
 
         const imgPlaceholder = 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=800&q=80';
         const imageSrc = car.img_url || imgPlaceholder;
 
         const badgeClass = car.budget_class === 'success' ? 'badge-success' :
                            car.budget_class === 'info' ? 'badge-info' :
+                           car.budget_class === 'emerald' ? 'badge-emerald' :
                            car.budget_class === 'warning' ? 'badge-warning' : 'badge-danger';
 
-        const mens5kClass = car.mens_5k <= 300 ? 'target-ok' : (car.mens_5k <= 325 ? 'target-warn' : '');
         const mens7kClass = car.mens_7k <= 300 ? 'target-ok' : (car.mens_7k <= 325 ? 'target-warn' : '');
+        const mensMixifyClass = (car.mens_mixify || 999) <= 300 ? 'target-ok' : ((car.mens_mixify || 999) <= 325 ? 'target-warn' : '');
 
         const isAutohero = car.source === 'Autohero';
         const sourceTagHtml = isAutohero 
           ? `<span class="source-tag autohero">🛡️ Autohero Reconditionné</span>`
           : `<span class="source-tag autoscout">🌐 AutoScout24</span>`;
+
+        const dreamOverlay = isDreamTarget 
+          ? `<div style="position:absolute; top:0.75rem; left:50%; transform:translateX(-50%); z-index:3;">
+               <span class="badge" style="background:rgba(16,185,129,0.9); color:#fff; border:1px solid #34d399;">👑 Coup de Cœur · Cible Mixify</span>
+             </div>`
+          : '';
 
         card.innerHTML = `
           <div class="card-image-wrap">
@@ -1097,13 +1137,14 @@ def build_html(results_data, config):
               <span class="badge ${{badgeClass}}">${{car.budget_badge}}</span>
               <span class="badge score-badge">★ ${{car.score}}/10</span>
             </div>
+            ${{dreamOverlay}}
             ${{sourceTagHtml}}
           </div>
           <div class="card-body">
             <div class="car-header">
               <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span class="car-model-name">${{car.model_name}}</span>
-                ${{car.is_sweet_spot ? '<span class="chip" style="color:#22d3ee; border-color:rgba(6,182,212,0.4); font-weight:700">🎯 Cible Idéale</span>' : ''}}
+                <span class="car-model-name" style="${{isDreamTarget ? 'color:#34d399; font-weight:800;' : ''}}">${{car.model_name}}</span>
+                ${{isDreamTarget ? '<span class="chip" style="color:#34d399; border-color:rgba(16,185,129,0.4); font-weight:700">👑 Prioritaire</span>' : (car.is_sweet_spot ? '<span class="chip" style="color:#22d3ee; border-color:rgba(6,182,212,0.4); font-weight:700">🎯 Cible Idéale</span>' : '')}}
               </div>
               <h2 class="car-title" title="${{car.version_input ? car.version_input : car.title}}">${{car.version_input ? car.version_input : car.title}}</h2>
             </div>
@@ -1113,14 +1154,15 @@ def build_html(results_data, config):
               <span class="price-sub">Clé en main : ${{(car.price_raw + (car.repat_cost || 350)).toLocaleString('fr-FR')}} €</span>
             </div>
 
+            <!-- SIMULATION BOURSOBANK STANDARD VS MIXIFY CIBLE -->
             <div class="fin-box">
               <div class="fin-box-item">
-                <span class="fin-box-label">Apport 5 000 €</span>
-                <span class="fin-box-val ${{mens5kClass}}">${{car.mens_5k}} €<small style="font-size:0.75rem">/m</small></span>
-              </div>
-              <div class="fin-box-item">
-                <span class="fin-box-label">Apport 7 000 €</span>
+                <span class="fin-box-label">Apport Std (7 000 €)</span>
                 <span class="fin-box-val ${{mens7kClass}}">${{car.mens_7k}} €<small style="font-size:0.75rem">/m</small></span>
+              </div>
+              <div class="fin-box-item" style="border-left:1px solid rgba(16,185,129,0.25); padding-left:0.5rem;">
+                <span class="fin-box-label" style="color:#34d399">🎯 Mixify (11 625 €)</span>
+                <span class="fin-box-val ${{mensMixifyClass}}" style="color:#34d399">${{car.mens_mixify}} €<small style="font-size:0.75rem">/m</small></span>
               </div>
             </div>
 
@@ -1158,10 +1200,11 @@ def build_html(results_data, config):
       const ctxBudget = document.getElementById('budgetComparisonChart').getContext('2d');
 
       const stats = trendsData.stats_by_model || {{}};
-      const budgetMax = trendsData.budget_ceiling_vehicle || 23600;
+      const budgetStandard = trendsData.budget_ceiling_standard || 23600;
+      const budgetMixify = trendsData.budget_ceiling_mixify || 30255;
 
       const palette = [
-        '#38bdf8', '#34d399', '#a78bfa', '#f472b6', '#fbbf24',
+        '#10b981', '#38bdf8', '#a78bfa', '#f472b6', '#fbbf24',
         '#4ade80', '#2dd4bf', '#fb923c', '#818cf8', '#e879f9'
       ];
 
@@ -1170,34 +1213,47 @@ def build_html(results_data, config):
         'Nov 2026 (Actuel)', 'Déc 2026', 'Jan 2027', 'Fév 2027', 'Mar 2027', 'Avr 2027', 'Mai 2027 (Échéance LOA)'
       ];
       const datasets = [];
-      let colorIdx = 0;
 
-      // Ligne de budget BoursoBank horizontale (300 € / mois)
+      // Ligne 1 : Plafond Cible Mixify 15 Bars (Apport 11 625 € -> 30 255 €)
       datasets.push({{
-        label: 'Plafond Budget BoursoBank (300€/m sur 72m)',
-        data: Array(labels.length).fill(budgetMax),
-        borderColor: '#22c55e',
-        borderWidth: 2,
-        borderDash: [6, 6],
+        label: '🎯 Plafond Cible Mixify (Apport 11.6k€ · 30 255 €)',
+        data: Array(labels.length).fill(budgetMixify),
+        borderColor: '#10b981',
+        borderWidth: 2.5,
+        borderDash: [8, 4],
         pointRadius: 0,
         fill: false,
         order: 0
       }});
 
+      // Ligne 2 : Plafond Standard BoursoBank (Apport 7 000 € -> 23 600 €)
+      datasets.push({{
+        label: 'Plafond Standard (Apport 7k€ · 23 600 €)',
+        data: Array(labels.length).fill(budgetStandard),
+        borderColor: '#6b7280',
+        borderWidth: 1.5,
+        borderDash: [4, 4],
+        pointRadius: 0,
+        fill: false,
+        order: 0
+      }});
+
+      let colorIdx = 0;
       for (const [mId, s] of Object.entries(stats)) {{
-        const color = palette[colorIdx % palette.length];
+        const isTarget = mId === 'peugeot_e3008_gt';
+        const color = isTarget ? '#34d399' : palette[colorIdx % palette.length];
         colorIdx++;
         datasets.push({{
-          label: s.model_name.replace('Grande Autonomie', 'LR').replace('(Extended Range)', 'ER'),
+          label: (isTarget ? '👑 ' : '') + s.model_name.replace('Grande Autonomie', 'LR').replace('(Extended Range)', 'ER'),
           data: s.forecast_min_prices,
           borderColor: color,
           backgroundColor: color,
-          borderWidth: 2,
+          borderWidth: isTarget ? 3.5 : 2,
           tension: 0.3,
-          pointRadius: [3, 3, 3, 3, 3, 3, 6], // Point plus large sur Mai 2027
-          pointHoverRadius: 7,
+          pointRadius: isTarget ? [4, 4, 4, 4, 4, 4, 8] : [3, 3, 3, 3, 3, 3, 6],
+          pointHoverRadius: 8,
           fill: false,
-          order: 1
+          order: isTarget ? -1 : 1
         }});
       }}
 
@@ -1244,9 +1300,10 @@ def build_html(results_data, config):
       const barColors = [];
 
       for (const [mId, s] of Object.entries(stats)) {{
-        barLabels.push(s.model_name.split(' (')[0].replace('Grande Autonomie', 'LR'));
+        const isTarget = mId === 'peugeot_e3008_gt';
+        barLabels.push((isTarget ? '👑 ' : '') + s.model_name.split(' (')[0].replace('Grande Autonomie', 'LR'));
         barPrices.push(s.min_price);
-        barColors.push(s.min_price <= budgetMax ? '#10b981' : (s.min_price <= budgetMax + 1600 ? '#f59e0b' : '#ef4444'));
+        barColors.push(s.min_price <= budgetStandard ? '#3b82f6' : (s.min_price <= budgetMixify ? '#10b981' : '#f59e0b'));
       }}
 
       new Chart(ctxBudget, {{
@@ -1269,7 +1326,7 @@ def build_html(results_data, config):
             tooltip: {{
               callbacks: {{
                 label: function(ctx) {{
-                  return 'Prix Min : ' + ctx.parsed.x.toLocaleString('fr-FR') + ' € (Plafond : ' + Math.round(budgetMax).toLocaleString('fr-FR') + ' €)';
+                  return 'Prix Min : ' + ctx.parsed.x.toLocaleString('fr-FR') + ' € (Plafond Mixify: ' + Math.round(budgetMixify).toLocaleString('fr-FR') + ' €)';
                 }}
               }}
             }}
