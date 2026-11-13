@@ -175,6 +175,94 @@
           "mens_mai_2027_mixify": 251.62
         }
       }
+    },
+    {
+      "timestamp": "2026-11-13T14:59:38.380918",
+      "date": "2026-11-13",
+      "budget_ceiling_standard": 25631.14,
+      "budget_ceiling_mixify": 30256.14,
+      "models": {
+        "skoda_enyaq_80": {
+          "min": 25590,
+          "avg": 40222,
+          "median": 41490,
+          "count": 14,
+          "in_budget": 1,
+          "price_mai_2027": 24006,
+          "mens_mai_2027_7k": 274.31,
+          "mens_mai_2027_mixify": 201.22
+        },
+        "mustang_mache_er": {
+          "min": 28990,
+          "avg": 32615,
+          "median": 32990,
+          "count": 8,
+          "in_budget": 0,
+          "price_mai_2027": 27195,
+          "mens_mai_2027_7k": 324.72,
+          "mens_mai_2027_mixify": 251.62
+        },
+        "megane_etech_iconic": {
+          "min": 21790,
+          "avg": 23208,
+          "median": 23590,
+          "count": 6,
+          "in_budget": 6,
+          "price_mai_2027": 20441,
+          "mens_mai_2027_7k": 217.97,
+          "mens_mai_2027_mixify": 144.87
+        },
+        "hyundai_ioniq_5": {
+          "min": 24490,
+          "avg": 40082,
+          "median": 44490,
+          "count": 8,
+          "in_budget": 1,
+          "price_mai_2027": 22974,
+          "mens_mai_2027_7k": 258.0,
+          "mens_mai_2027_mixify": 184.9
+        },
+        "kia_ev6": {
+          "min": 29090,
+          "avg": 34669,
+          "median": 32490,
+          "count": 15,
+          "in_budget": 0,
+          "price_mai_2027": 27289,
+          "mens_mai_2027_7k": 326.2,
+          "mens_mai_2027_mixify": 253.1
+        },
+        "kia_niro_ev_premium": {
+          "min": 26990,
+          "avg": 45321,
+          "median": 53160,
+          "count": 9,
+          "in_budget": 0,
+          "price_mai_2027": 25319,
+          "mens_mai_2027_7k": 295.07,
+          "mens_mai_2027_mixify": 221.97
+        },
+        "hyundai_kona_2_exec": {
+          "min": 28990,
+          "avg": 30490,
+          "median": 31990,
+          "count": 2,
+          "in_budget": 0,
+          "price_mai_2027": 27195,
+          "mens_mai_2027_7k": 324.72,
+          "mens_mai_2027_mixify": 251.62
+        },
+        "peugeot_e3008_gt": {
+          "min": 29990,
+          "avg": 36911,
+          "median": 36499,
+          "count": 12,
+          "in_budget": 0,
+          "price_mai_2027": 28133,
+          "mens_mai_2027_7k": 339.54,
+          "mens_mai_2027_mixify": 266.44
+        }
+      }
     }
   ]
 }
