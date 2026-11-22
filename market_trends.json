@@ -439,6 +439,84 @@
           "mens_mai_2027_mixify": 266.44
         }
       }
+    },
+    {
+      "timestamp": "2026-11-22T14:58:12.074024",
+      "date": "2026-11-22",
+      "budget_ceiling_standard": 25631.14,
+      "budget_ceiling_mixify": 30256.14,
+      "models": {
+        "skoda_enyaq_80": {
+          "min": 27995,
+          "avg": 42322,
+          "median": 42490,
+          "count": 12,
+          "in_budget": 0,
+          "price_mai_2027": 26262,
+          "mens_mai_2027_7k": 309.97,
+          "mens_mai_2027_mixify": 236.87
+        },
+        "mustang_mache_er": {
+          "min": 28990,
+          "avg": 32689,
+          "median": 32990,
+          "count": 10,
+          "in_budget": 0,
+          "price_mai_2027": 27195,
+          "mens_mai_2027_7k": 324.72,
+          "mens_mai_2027_mixify": 251.62
+        },
+        "megane_etech_iconic": {
+          "min": 21290,
+          "avg": 23059,
+          "median": 23090,
+          "count": 6,
+          "in_budget": 6,
+          "price_mai_2027": 19972,
+          "mens_mai_2027_7k": 210.56,
+          "mens_mai_2027_mixify": 137.46
+        },
+        "hyundai_ioniq_5": {
+          "min": 24490,
+          "avg": 39091,
+          "median": 34990,
+          "count": 7,
+          "in_budget": 1,
+          "price_mai_2027": 22974,
+          "mens_mai_2027_7k": 258.0,
+          "mens_mai_2027_mixify": 184.9
+        },
+        "kia_ev6": {
+          "min": 29090,
+          "avg": 36898,
+          "median": 34990,
+          "count": 17,
+          "in_budget": 0,
+          "price_mai_2027": 27289,
+          "mens_mai_2027_7k": 326.2,
+          "mens_mai_2027_mixify": 253.1
+        },
+        "kia_niro_ev_premium": {
+          "min": 25480,
+          "avg": 29862,
+          "median": 26990,
+          "count": 9,
+          "in_budget": 1,
+          "price_mai_2027": 23902,
+          "mens_mai_2027_7k": 272.67,
+          "mens_mai_2027_mixify": 199.57
+        },
+        "peugeot_e3008_gt": {
+          "min": 29990,
+          "avg": 41726,
+          "median": 41490,
+          "count": 12,
+          "in_budget": 0,
+          "price_mai_2027": 28133,
+          "mens_mai_2027_7k": 339.54,
+          "mens_mai_2027_mixify": 266.44
+        }
+      }
     }
   ]
 }
